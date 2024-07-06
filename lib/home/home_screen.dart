@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:record/record.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   static Route<void> route() {
@@ -12,66 +14,26 @@ class HomeScreen extends StatefulWidget {
   }
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  AudioRecorder audioRecorder = AudioRecorder();
-  Timer? timer;
-  Stream<Uint8List>? audioStream;
-
-  double volume = 0.0;
-  double minVolume = -45.0;
-
-  startTimer() async {
-    timer ??= Timer.periodic(
-        const Duration(milliseconds: 50), (timer) => updateVolume());
-  }
-
-  updateVolume() async {
-    Amplitude ampl = await audioRecorder.getAmplitude();
-    if (ampl.current > minVolume) {
-      setState(() {
-        volume = (ampl.current - minVolume) / minVolume;
-      });
-    }
-  }
-
-  int volume0to(int maxVolumeToDisplay) {
-    return (volume * maxVolumeToDisplay).round().abs();
-  }
-
-  Future<bool> startRecording() async {
-    if (await audioRecorder.hasPermission()) {
-      if (!await audioRecorder.isRecording()) {
-        audioStream = await audioRecorder.startStream(const RecordConfig());
-      }
-      startTimer();
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final Future<bool> recordFutureBuilder =
-    Future<bool>.delayed(const Duration(seconds: 3), (() async {
-      return startRecording();
-    }));
+    return BlocProvider<AudioRecorderBloc>(
+      create: (context) => AudioRecorderBloc()..add(InitializeAudioRecorder()),
+      child: Scaffold(
+          body: Center(
+            child: BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
+                builder: (context, state) {
+                  return switch (state) {
+                    AudioRecorderState(volume: var volume) when state.hasData =>
+                        Text("VOLUME\n${volume0to(volume, 100)}",
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold)),
+                    _ => const CircularProgressIndicator()
+                  };
+                }),
+          )),
+    );
+  }
 
-    return FutureBuilder(
-        future: recordFutureBuilder,
-        builder: (context, AsyncSnapshot<bool> snapshot) {
-          return Scaffold(
-            body: Center(
-                child: snapshot.hasData
-                    ? Text("VOLUME\n${volume0to(100)}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 42, fontWeight: FontWeight.bold))
-                    : const CircularProgressIndicator()),
-          );
-        });
+  int volume0to(double volume, int maxVolumeToDisplay) {
+    return (volume * maxVolumeToDisplay).round().abs();
   }
 }
