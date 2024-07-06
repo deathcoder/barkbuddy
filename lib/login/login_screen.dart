@@ -1,3 +1,4 @@
+import 'package:barkbuddy/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../common/logo.dart';
@@ -19,7 +20,8 @@ class LoginScreen extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: SafeArea(
             child: Center(
-              child: Column(
+              child: ListView(
+                shrinkWrap: true,
                 children: [
                   VerticalSpace.medium(),
                   const LoginHeader(),
@@ -47,12 +49,12 @@ class LoginBody extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "Login or Sign up",
+                "Experience the Future of Dog Sitting!",
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               VerticalSpace.small(),
               Text(
-                "Login now to discover a refreshing dog sitting experience!",
+                "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall!
@@ -83,19 +85,21 @@ class StartButton extends StatelessWidget {
       children: [
         Expanded(
           child: MaterialFilledButton(
-              onPressed: () => {},
+              onPressed: () => Navigator.of(context).pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false),
               height: 60,
               //icon: const Icon(Icons.),
               label: Text(
-                "Start",
-                style: Theme.of(context).textTheme.labelLarge!.apply(fontWeightDelta: 10),
+                "Get Started Now!",
+                style: Theme.of(context).textTheme.labelLarge!.apply(
+                    fontWeightDelta: 10,
+                    color: Theme.of(context).colorScheme.onPrimary
+                ),
               )),
         ),
       ],
     );
   }
 }
-
 
 class TermsAndConditions extends StatelessWidget {
   const TermsAndConditions({
