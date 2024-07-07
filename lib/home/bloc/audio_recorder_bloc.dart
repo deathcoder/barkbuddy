@@ -3,13 +3,13 @@ import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/services/audio_recorder_service.dart';
+import 'package:barkbuddy/home/services/barkbuddy_ai_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:record/record.dart';
 
 part 'audio_recorder_event.dart';
-
 part 'audio_recorder_state.dart';
 
 class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderState> {
@@ -17,6 +17,8 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   static const double amplitudeThreshold = -30;
 
   final AudioRecorderService audioRecorderService;
+  final BarkbuddyAiService barkbuddyAiService;
+
   late Timer timer;
   bool isRecording;
   double minVolume;
@@ -25,6 +27,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
 
   AudioRecorderBloc({
     required this.audioRecorderService,
+    required this.barkbuddyAiService,
     this.isRecording = false,
     this.minVolume = -45.0,
     this.recordSeconds = 3,
@@ -83,6 +86,12 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
 
   Future<void> onAudioRecorded(AudioRecorded event, Emitter<AbstractAudioRecorderState> emit) async {
     logger.info("Received audio recorded event with id: ${event.audioId} and audio size: ${event.audio.length}");
+    var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(event.audio);
+    if(barkingResponse.barking) {
+      logger.warn("Barking detected");
+    } else {
+      logger.debug("No barking");
+    }
     isRecording = false;
   }
 

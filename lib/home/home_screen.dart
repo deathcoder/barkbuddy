@@ -1,5 +1,6 @@
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:barkbuddy/home/services/audio_recorder_service.dart';
+import 'package:barkbuddy/home/services/barkbuddy_ai_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +15,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<AudioRecorderBloc>(
       create: (context) => AudioRecorderBloc(
-        audioRecorderService: AudioRecorderService()
+        audioRecorderService: AudioRecorderService(),
+        barkbuddyAiService: BarkbuddyAiService(apiKey: ""),
       )..add(InitializeAudioRecorder()),
       child: Scaffold(
           body: Center(

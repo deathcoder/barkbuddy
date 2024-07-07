@@ -50,7 +50,9 @@ class AudioRecorderService {
 
     logger.info("starting audio recording with id: $audioId");
     return (await audioRecorder.startStream(const RecordConfig(
-        encoder: AudioEncoder.pcm16bits
+        sampleRate: 44100,
+        encoder: AudioEncoder.pcm16bits,
+        numChannels: 1
     ))).listen(
             (data) {
           logger.debug("Received audio data on stream, size: ${data.length}");
