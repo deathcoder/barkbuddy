@@ -58,7 +58,7 @@ class LoginBody extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onBackground.withAlpha(150)),
+                    .copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha(150)),
                 textAlign: TextAlign.center,
               ),
               VerticalSpace.medium(),

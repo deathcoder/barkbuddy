@@ -1,10 +1,6 @@
-import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:record/record.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
