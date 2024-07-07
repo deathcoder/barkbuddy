@@ -13,7 +13,8 @@ part 'audio_recorder_state.dart';
 
 class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderState> {
   static final logger = Logger(name: (AudioRecorderBloc).toString());
-  static final double amplitudThreshold = -30;
+  static const double amplitudeThreshold = -30;
+
   bool initialized;
   bool isRecording;
   double minVolume;
@@ -70,7 +71,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
       emit(const AudioRecorderState(volume: 0));
     }
 
-    if (ampl.current > amplitudThreshold && !isRecording) {
+    if (ampl.current > amplitudeThreshold && !isRecording) {
       // detected noise
       isRecording = true;
       add(RecordNoise());
