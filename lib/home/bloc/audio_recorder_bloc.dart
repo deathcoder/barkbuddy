@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
+import 'package:barkbuddy/home/services/audio_recorder_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -15,55 +16,37 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   static final logger = Logger(name: (AudioRecorderBloc).toString());
   static const double amplitudeThreshold = -30;
 
-  bool initialized;
+  final AudioRecorderService audioRecorderService;
+  late Timer timer;
   bool isRecording;
   double minVolume;
   int recordSeconds;
-  int audioId;
-
-  Uint8List? currentAudio;
-  late AudioRecorder audioRecorder;
-  late Timer timer;
-
-  StreamSubscription<Uint8List>? audioStream;
+  int audioUpdateIntervalMillis;
 
   AudioRecorderBloc({
-    this.initialized = false,
+    required this.audioRecorderService,
     this.isRecording = false,
     this.minVolume = -45.0,
     this.recordSeconds = 3,
-    this.audioId = 0,
+    this.audioUpdateIntervalMillis = 300
   }) : super(const AudioRecorderState()) {
     on<InitializeAudioRecorder>(onInitialize);
     on<UpdateVolume>(onUpdateVolume);
     on<RestartRecorder>(onRestartRecorder);
     on<RecordNoise>(onRecordNoise);
     on<AudioRecorded>(onAudioRecorded);
+    audioRecorderService.onAudioRecorded = ({required Uint8List audio, required int audioId}) =>
+        add(AudioRecorded(audioId: audioId, audio: audio));
   }
 
   Future<void> onInitialize(InitializeAudioRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
-    // avoid reinitialization
-    if (initialized) {
-      return;
-    }
-
-    // initialize audio recorder
-    audioRecorder = AudioRecorder();
-    // acquire permission
-    if (await audioRecorder.hasPermission()) {
-      if (!await audioRecorder.isRecording()) {
-        // start recording
-        audioStream = await startAudioStream();
-      }
-    }
+    await audioRecorderService.initialize();
     // start timer
-    timer = Timer.periodic(const Duration(milliseconds: 300), (timer) => add(UpdateVolume()));
-
-    initialized = true;
+    timer = Timer.periodic(Duration(milliseconds: audioUpdateIntervalMillis), (timer) => add(UpdateVolume()));
   }
 
   Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
-    Amplitude ampl = await audioRecorder.getAmplitude();
+    Amplitude ampl = await audioRecorderService.getAmplitude();
     if (ampl.current > minVolume) {
       double volume = (ampl.current - minVolume) / minVolume;
       emit(AudioRecorderState(volume: volume));
@@ -87,10 +70,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
       return;
     }
 
-    await audioRecorder.cancel();
-    await audioStream?.cancel();
-    currentAudio = null;
-    audioStream = await startAudioStream();
+    await audioRecorderService.restart();
   }
 
   Future<void> onRecordNoise(RecordNoise event, Emitter<AbstractAudioRecorderState> emit) async {
@@ -108,42 +88,14 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
 
   Future<void> stopRecording() async {
     logger.info("Stopping audio recording");
-    await audioRecorder.stop();
+    await audioRecorderService.stop();
   }
 
-  Future<StreamSubscription<Uint8List>> startAudioStream() async {
-    if(await audioRecorder.isRecording()){
-      String message = "start stream requested while audioRecorder is already recording";
-      logger.error(message);
-      throw Exception(message);
-    }
-
-    logger.info("starting audio recording with id: $audioId");
-    return (await audioRecorder.startStream(const RecordConfig(
-      encoder: AudioEncoder.pcm16bits
-    ))).listen(
-            (data) {
-              logger.debug("Received audio data on stream, size: ${data.length}");
-              if(currentAudio == null) {
-                logger.debug("initializing current audio");
-                currentAudio = data;
-                return;
-              }
-
-              logger.debug("appending new data to existing audio with size: ${currentAudio!.length}");
-              currentAudio = Uint8List.fromList(currentAudio! + data);
-            },
-        onDone: () {
-          logger.info("current audio stream is done");
-          add(AudioRecorded(audio: currentAudio!, audioId: audioId++));
-        });
-  }
 
   @override
   Future<void> close() async {
     timer.cancel();
-    await audioStream?.cancel();
-    await audioRecorder.dispose();
+    await audioRecorderService.dispose();
     await super.close();
   }
 
