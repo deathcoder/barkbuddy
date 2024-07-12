@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
@@ -36,13 +38,14 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     this.recordSeconds = 3,
     this.audioUpdateIntervalMillis = 300,
     this.actionsPlayerIntervalMillis = 3000,
-  }) : super(const AudioRecorderState()) {
+  }) : super(AudioRecorderState()) {
     on<InitializeAudioRecorder>(onInitialize);
     on<UpdateVolume>(onUpdateVolume);
     on<PlayAction>(onPlayAction);
     on<RestartRecorder>(onRestartRecorder);
     on<RecordNoise>(onRecordNoise);
     on<AudioRecorded>(onAudioRecorded);
+    on<ExecuteAction>(onExecuteAction);
     audioRecorderService.onAudioRecorded = ({required Uint8List audio, required int audioId}) =>
         add(AudioRecorded(audioId: audioId, audio: audio));
   }
@@ -55,7 +58,8 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
-    Amplitude ampl = await audioRecorderService.getAmplitude();
+    emit(AudioRecorderState(volume: .1));
+/*    Amplitude ampl = await audioRecorderService.getAmplitude();
     if (ampl.current > minVolume) {
       double volume = (ampl.current - minVolume) / minVolume;
       emit(AudioRecorderState(volume: volume));
@@ -70,7 +74,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     } else {
       // silence
       add(RestartRecorder());
-    }
+    }*/
   }
 
   Future<void> onRestartRecorder(RestartRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
@@ -96,8 +100,8 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     if(barkingResponse.barking) {
       logger.warn("Barking detected");
       switch(state) {
-        case AudioRecorderState():
-          
+        case AudioRecorderState(volume: var volume, actions: var actions, actionToExecute: var actionToExecute):
+          emit(AudioRecorderState(volume: volume, actionToExecute: actionToExecute, actions: actions + barkingResponse.actions));
       }
     } else {
       logger.debug("No barking");
@@ -126,10 +130,20 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
         logger.debug("Skipping play action, last action is still being executed");
       case AudioRecorderState(volume: var volume, actions: var actions) when actions.isNotEmpty:
         Action actionToExecute = actions.removeAt(0);
-        logger.info("Playing next action: $actionToExecute");
+        logger.info("Playing next action: ${actionToExecute.action}");
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: actionToExecute));
+        add(ExecuteAction(action: actionToExecute));
       default:
         logger.debug("Skipping play action, there are no actions to execute");
+    }
+  }
+
+  Future<void> onExecuteAction(ExecuteAction event, Emitter<AbstractAudioRecorderState> emit) async {
+    await Future.delayed(const Duration(seconds: 10));
+    switch(state) {
+      case AudioRecorderState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):
+        logger.info(actionToExecute?.action?? "No action");
+        emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: null));
     }
   }
 }

@@ -10,8 +10,9 @@ final class AudioRecorderState extends AbstractAudioRecorderState {
   final double volume;
   final List<Action> actions;
   final Action? actionToExecute;
+  final DateTime noCache;
 
-  const AudioRecorderState({this.volume = uninitializedVolume, this.actions = const [], this.actionToExecute});
+  AudioRecorderState({this.volume = uninitializedVolume, this.actions = const [], this.actionToExecute}) : noCache = DateTime.now();
 
   bool get hasData => volume != uninitializedVolume;
 

@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:barkbuddy/home/services/audio_recorder_service.dart';
@@ -18,25 +21,25 @@ class HomeScreen extends StatelessWidget {
       create: (context) => AudioRecorderBloc(
         audioRecorderService: AudioRecorderService(),
         barkbuddyAiService: BarkbuddyAiService(apiKey: ""),
-      )..add(InitializeAudioRecorder()),
+      )..add(InitializeAudioRecorder())..add(UpdateVolume()),
       child: Scaffold(
           body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
-                    builder: (context, state) {
-                      return switch (state) {
+            child: BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
+                builder: (context, state) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      switch (state) {
                         AudioRecorderState(volume: var volume) when state.hasData =>
                             Text("VOLUME\n${volume0to(volume, 100)}",
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold)),
+                                style: const TextStyle(fontSize: 41, fontWeight: FontWeight.bold)),
                         _ => const CircularProgressIndicator()
-                      };
-                    }),
-                MaterialFilledButton(on )
-              ],
-            ),
+                      },
+                      MaterialFilledButton(label: Text("bark!"), onPressed: () => context.read<AudioRecorderBloc>().add(AudioRecorded(audio: Uint8List(0), audioId: 0)))
+                    ],
+                  );
+                }),
           )),
     );
   }

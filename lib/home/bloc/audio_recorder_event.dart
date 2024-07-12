@@ -14,15 +14,25 @@ final class UpdateVolume extends AudioRecorderEvent {
   List<Object> get props => [];
 }
 
+final class RecordNoise extends AudioRecorderEvent {
+  @override
+  List<Object> get props => [];
+}
+
 final class PlayAction extends AudioRecorderEvent {
   @override
   List<Object> get props => [];
 }
 
-final class RecordNoise extends AudioRecorderEvent {
+final class ExecuteAction extends AudioRecorderEvent {
+  final Action action;
+
+  const ExecuteAction({required this.action});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [action];
 }
+
 
 final class RestartRecorder extends AudioRecorderEvent {
   @override
