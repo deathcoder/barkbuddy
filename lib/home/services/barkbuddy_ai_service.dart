@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
+import 'package:barkbuddy/home/models/action.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:pcmtowave/convertToWav.dart';
@@ -10,8 +11,7 @@ class BarkbuddyAiService {
   static final logger = Logger(name: (BarkbuddyAiService).toString());
 
   bool apiCalled = false;
-  static const systemPrompt =
-"""
+  static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.
 
 Tasks:
@@ -66,6 +66,8 @@ Example Output:
       : model = GenerativeModel(model: model, apiKey: apiKey);
 
   Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom(Uint8List audio) async {
+    return mockResponse();
+    /*
     if(apiCalled) {
       return BarkbuddyAiResponse(barking: false);
     }
@@ -79,6 +81,8 @@ Example Output:
       ])
     ];
     GenerateContentResponse generateContentResponse = await model.generateContent(prompt);
+    // todo: generate json flag? current output has markdown syntax
+    //   generation_config={"response_mime_type": "application/json"}
     if(generateContentResponse.text != null){
       logger.info("Computer says: ${generateContentResponse.text}");
       return BarkbuddyAiResponse(barking: true);
@@ -86,5 +90,20 @@ Example Output:
       logger.warn("Computer says no :(");
       return BarkbuddyAiResponse(barking: false);
     }
+    */
+  }
+
+  BarkbuddyAiResponse mockResponse({barking = true, stressLevel = "low"}) {
+    return BarkbuddyAiResponse(
+      barking: barking,
+      stressLevel: stressLevel,
+      actions: [
+        Action(action: "action_1", id: "audio_1"),
+        Action(action: "action_2", message: "Good boy, everything is alright."),
+        Action(action: "action_3"),
+        Action(action: "action_4", id: "toy_1"),
+        Action(action: "action_5", message: "Dog seems a bit restless. Please check the camera and see if they need anything."),
+      ]
+    );
   }
 }

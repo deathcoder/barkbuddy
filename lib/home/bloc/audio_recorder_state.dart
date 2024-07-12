@@ -8,11 +8,13 @@ sealed class AbstractAudioRecorderState extends Equatable {
 
 final class AudioRecorderState extends AbstractAudioRecorderState {
   final double volume;
+  final List<Action> actions;
+  final Action? actionToExecute;
 
-  const AudioRecorderState({this.volume = uninitializedVolume});
+  const AudioRecorderState({this.volume = uninitializedVolume, this.actions = const [], this.actionToExecute});
 
   bool get hasData => volume != uninitializedVolume;
 
   @override
-  List<Object> get props => [volume];
+  List<Object?> get props => [volume, actions, actionToExecute];
 }

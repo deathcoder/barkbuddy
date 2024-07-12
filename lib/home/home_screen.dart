@@ -1,3 +1,4 @@
+import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:barkbuddy/home/services/audio_recorder_service.dart';
 import 'package:barkbuddy/home/services/barkbuddy_ai_service.dart';
@@ -20,16 +21,22 @@ class HomeScreen extends StatelessWidget {
       )..add(InitializeAudioRecorder()),
       child: Scaffold(
           body: Center(
-            child: BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
-                builder: (context, state) {
-                  return switch (state) {
-                    AudioRecorderState(volume: var volume) when state.hasData =>
-                        Text("VOLUME\n${volume0to(volume, 100)}",
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold)),
-                    _ => const CircularProgressIndicator()
-                  };
-                }),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
+                    builder: (context, state) {
+                      return switch (state) {
+                        AudioRecorderState(volume: var volume) when state.hasData =>
+                            Text("VOLUME\n${volume0to(volume, 100)}",
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 42, fontWeight: FontWeight.bold)),
+                        _ => const CircularProgressIndicator()
+                      };
+                    }),
+                MaterialFilledButton(on )
+              ],
+            ),
           )),
     );
   }
