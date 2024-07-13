@@ -42,6 +42,7 @@ dependencies:
   equatable: ^2.0.5
   google_generative_ai: ^0.4.3
   pcmtowave: ^0.0.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

@@ -1,16 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
-import 'package:barkbuddy/home/models/action.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
+import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:pcmtowave/convertToWav.dart';
 import 'package:pcmtowave/pcmtowave.dart';
 
-class BarkbuddyAiService {
-  static final logger = Logger(name: (BarkbuddyAiService).toString());
+class GeminiBarkbuddyAiService implements BarkbuddyAiService {
+  static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 
-  bool apiCalled = false;
+  bool apiCalled = true; // todo revert this to actually call gemini
   static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.
 
@@ -62,14 +61,13 @@ Example Output:
 
   final GenerativeModel model;
 
-  BarkbuddyAiService({required String apiKey, String model = "gemini-1.5-flash-latest"})
+  GeminiBarkbuddyAiService({required String apiKey, String model = "gemini-1.5-flash-latest"})
       : model = GenerativeModel(model: model, apiKey: apiKey);
 
+  @override
   Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom(Uint8List audio) async {
-    return mockResponse();
-    /*
     if(apiCalled) {
-      return BarkbuddyAiResponse(barking: false);
+      return BarkbuddyAiResponse(barking: false, stressLevel: "low");
     }
 
     apiCalled = true;
@@ -80,30 +78,17 @@ Example Output:
         DataPart('audio/wav', Pcmtowave.pcmToWav(audio, 44100, 1))
       ])
     ];
-    GenerateContentResponse generateContentResponse = await model.generateContent(prompt);
-    // todo: generate json flag? current output has markdown syntax
-    //   generation_config={"response_mime_type": "application/json"}
+
+    GenerateContentResponse generateContentResponse = await model.generateContent(
+        prompt,
+        generationConfig: GenerationConfig(responseMimeType: "application/json"));
+
     if(generateContentResponse.text != null){
       logger.info("Computer says: ${generateContentResponse.text}");
-      return BarkbuddyAiResponse(barking: true);
+      return BarkbuddyAiResponse(barking: true, stressLevel: "mild");
     } else {
       logger.warn("Computer says no :(");
-      return BarkbuddyAiResponse(barking: false);
+      return BarkbuddyAiResponse(barking: false, stressLevel: "none");
     }
-    */
-  }
-
-  BarkbuddyAiResponse mockResponse({barking = true, stressLevel = "low"}) {
-    return BarkbuddyAiResponse(
-      barking: barking,
-      stressLevel: stressLevel,
-      actions: [
-        Action(action: "action_1", id: "audio_1"),
-        Action(action: "action_2", message: "Good boy, everything is alright."),
-        Action(action: "action_3"),
-        Action(action: "action_4", id: "toy_1"),
-        Action(action: "action_5", message: "Dog seems a bit restless. Please check the camera and see if they need anything."),
-      ]
-    );
   }
 }

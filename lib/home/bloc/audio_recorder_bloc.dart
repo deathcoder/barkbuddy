@@ -1,16 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/action.dart';
-import 'package:barkbuddy/home/services/audio_recorder_service.dart';
-import 'package:barkbuddy/home/services/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:record/record.dart';
 
 part 'audio_recorder_event.dart';
 part 'audio_recorder_state.dart';
@@ -19,62 +16,75 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   static final logger = Logger(name: (AudioRecorderBloc).toString());
   static const double amplitudeThreshold = -30;
 
-  final AudioRecorderService audioRecorderService;
+  final RecorderService audioRecorderService;
   final BarkbuddyAiService barkbuddyAiService;
 
-  late Timer audioUpdateTimer;
+  late Timer volumeUpdateTimer;
+  late Timer detectNoiseTimer;
   late Timer actionsPlayerTimer;
   bool isRecording;
-  double minVolume;
+  double minAmplitude;
   int recordSeconds;
-  int audioUpdateIntervalMillis;
+  int volumeUpdateIntervalMillis;
+  int detectNoiseIntervalMillis;
   int actionsPlayerIntervalMillis;
 
   AudioRecorderBloc({
     required this.audioRecorderService,
     required this.barkbuddyAiService,
     this.isRecording = false,
-    this.minVolume = -45.0,
+    this.minAmplitude = -45.0,
     this.recordSeconds = 3,
-    this.audioUpdateIntervalMillis = 300,
+    this.detectNoiseIntervalMillis = 300,
+    this.volumeUpdateIntervalMillis = 50,
     this.actionsPlayerIntervalMillis = 3000,
   }) : super(AudioRecorderState()) {
     on<InitializeAudioRecorder>(onInitialize);
     on<UpdateVolume>(onUpdateVolume);
+    on<DetectNoise>(onDetectNoise);
     on<PlayAction>(onPlayAction);
     on<RestartRecorder>(onRestartRecorder);
     on<RecordNoise>(onRecordNoise);
     on<AudioRecorded>(onAudioRecorded);
     on<ExecuteAction>(onExecuteAction);
-    audioRecorderService.onAudioRecorded = ({required Uint8List audio, required int audioId}) =>
+    audioRecorderService.audioRecordedCallback = ({required Uint8List audio, required int audioId}) =>
         add(AudioRecorded(audioId: audioId, audio: audio));
   }
 
   Future<void> onInitialize(InitializeAudioRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
-    // todo re-enable await audioRecorderService.initialize();
+    await audioRecorderService.initialize();
     // start timer
-    // todo re-enable audioUpdateTimer = Timer.periodic(Duration(milliseconds: audioUpdateIntervalMillis), (timer) => add(UpdateVolume()));
-    actionsPlayerTimer = Timer.periodic(Duration(milliseconds: audioUpdateIntervalMillis), (timer) => add(PlayAction()));
+    volumeUpdateTimer = Timer.periodic(Duration(milliseconds: volumeUpdateIntervalMillis), (timer) => add(UpdateVolume()));
+    detectNoiseTimer = Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) => add(DetectNoise()));
+    actionsPlayerTimer = Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) => add(PlayAction()));
   }
 
-  Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
-    emit(AudioRecorderState(volume: .1));
-/*    Amplitude ampl = await audioRecorderService.getAmplitude();
-    if (ampl.current > minVolume) {
-      double volume = (ampl.current - minVolume) / minVolume;
-      emit(AudioRecorderState(volume: volume));
-    } else {
-      emit(const AudioRecorderState(volume: 0));
-    }
 
-    if (ampl.current > amplitudeThreshold && !isRecording) {
+
+  Future<void> onDetectNoise(DetectNoise event, Emitter<AbstractAudioRecorderState> emit) async {
+    double amplitude = await audioRecorderService.currentAmplitude;
+
+    if (amplitude > amplitudeThreshold && !isRecording) {
       // detected noise
       isRecording = true;
       add(RecordNoise());
     } else {
       // silence
       add(RestartRecorder());
-    }*/
+    }
+  }
+
+  Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
+    double amplitude = await audioRecorderService.currentAmplitude;
+    double volume = 0;
+    if (amplitude > minAmplitude) {
+      volume = (amplitude - minAmplitude) / minAmplitude;
+    }
+
+    switch(state) {
+      case AudioRecorderState(actions: var actions, actionToExecute: var actionToExecute):
+        emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: actionToExecute));
+    }
   }
 
   Future<void> onRestartRecorder(RestartRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
@@ -83,7 +93,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
       return;
     }
 
-    await audioRecorderService.restart();
+    await audioRecorderService.restartRecording();
   }
 
   Future<void> onRecordNoise(RecordNoise event, Emitter<AbstractAudioRecorderState> emit) async {
@@ -111,13 +121,14 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
 
   Future<void> stopRecording() async {
     logger.info("Stopping audio recording");
-    await audioRecorderService.stop();
+    await audioRecorderService.stopRecording();
   }
 
 
   @override
   Future<void> close() async {
-    audioUpdateTimer.cancel();
+    volumeUpdateTimer.cancel();
+    detectNoiseTimer.cancel();
     actionsPlayerTimer.cancel();
     await audioRecorderService.dispose();
     await super.close();
@@ -142,7 +153,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     await Future.delayed(const Duration(seconds: 10));
     switch(state) {
       case AudioRecorderState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):
-        logger.info(actionToExecute?.action?? "No action");
+        logger.info("Executing action: ${actionToExecute?.action?? "No action"}");
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: null));
     }
   }

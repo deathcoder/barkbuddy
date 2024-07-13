@@ -1,10 +1,10 @@
 import 'dart:typed_data';
-import 'dart:ui';
 
+import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
-import 'package:barkbuddy/home/services/audio_recorder_service.dart';
-import 'package:barkbuddy/home/services/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -19,8 +19,8 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<AudioRecorderBloc>(
       create: (context) => AudioRecorderBloc(
-        audioRecorderService: AudioRecorderService(),
-        barkbuddyAiService: BarkbuddyAiService(apiKey: ""),
+        audioRecorderService: context.read<RecorderService>(),
+        barkbuddyAiService: context.read<BarkbuddyAiService>(),
       )..add(InitializeAudioRecorder())..add(UpdateVolume()),
       child: Scaffold(
           body: Center(
@@ -36,7 +36,8 @@ class HomeScreen extends StatelessWidget {
                                 style: const TextStyle(fontSize: 41, fontWeight: FontWeight.bold)),
                         _ => const CircularProgressIndicator()
                       },
-                      MaterialFilledButton(label: Text("bark!"), onPressed: () => context.read<AudioRecorderBloc>().add(AudioRecorded(audio: Uint8List(0), audioId: 0)))
+                      if(Settings.stub) MaterialFilledButton(label: const Text("bark!"), onPressed:
+                          () => context.read<AudioRecorderBloc>().add(AudioRecorded(audio: Uint8List(0), audioId: 0)))
                     ],
                   );
                 }),
