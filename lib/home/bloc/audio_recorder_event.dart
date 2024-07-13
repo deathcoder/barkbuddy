@@ -10,21 +10,15 @@ final class InitializeAudioRecorder extends AudioRecorderEvent {
 }
 
 final class UpdateVolume extends AudioRecorderEvent {
-  @override
-  List<Object> get props => [];
-}
+  final double volume;
 
-final class DetectNoise extends AudioRecorderEvent {
+  const UpdateVolume({required this.volume});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [volume];
 }
 
 final class RecordNoise extends AudioRecorderEvent {
-  @override
-  List<Object> get props => [];
-}
-
-final class PlayAction extends AudioRecorderEvent {
   @override
   List<Object> get props => [];
 }
@@ -38,18 +32,16 @@ final class ExecuteAction extends AudioRecorderEvent {
   List<Object> get props => [action];
 }
 
+final class AddActions extends AudioRecorderEvent {
+  final List<Action> actions;
 
-final class RestartRecorder extends AudioRecorderEvent {
+  const AddActions({required this.actions});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [actions];
 }
 
-final class AudioRecorded extends AudioRecorderEvent {
-  final int audioId;
-  final Uint8List audio;
-
-  const AudioRecorded({required this.audioId, required this.audio});
-
+final class DebugBark extends AudioRecorderEvent {
   @override
-  List<Object> get props => [audioId];
+  List<Object> get props => [];
 }

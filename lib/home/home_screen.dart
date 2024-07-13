@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
@@ -21,7 +19,7 @@ class HomeScreen extends StatelessWidget {
       create: (context) => AudioRecorderBloc(
         audioRecorderService: context.read<RecorderService>(),
         barkbuddyAiService: context.read<BarkbuddyAiService>(),
-      )..add(InitializeAudioRecorder())..add(UpdateVolume()),
+      )..add(InitializeAudioRecorder()),
       child: Scaffold(
           body: Center(
             child: BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(
@@ -37,7 +35,7 @@ class HomeScreen extends StatelessWidget {
                         _ => const CircularProgressIndicator()
                       },
                       if(Settings.stub) MaterialFilledButton(label: const Text("bark!"), onPressed:
-                          () => context.read<AudioRecorderBloc>().add(AudioRecorded(audio: Uint8List(0), audioId: 0)))
+                          () => context.read<AudioRecorderBloc>().add(DebugBark()))
                     ],
                   );
                 }),

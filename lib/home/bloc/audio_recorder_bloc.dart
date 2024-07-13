@@ -41,59 +41,51 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }) : super(AudioRecorderState()) {
     on<InitializeAudioRecorder>(onInitialize);
     on<UpdateVolume>(onUpdateVolume);
-    on<DetectNoise>(onDetectNoise);
-    on<PlayAction>(onPlayAction);
-    on<RestartRecorder>(onRestartRecorder);
     on<RecordNoise>(onRecordNoise);
-    on<AudioRecorded>(onAudioRecorded);
     on<ExecuteAction>(onExecuteAction);
-    audioRecorderService.audioRecordedCallback = ({required Uint8List audio, required int audioId}) =>
-        add(AudioRecorded(audioId: audioId, audio: audio));
+    on<ExecuteAction>(onDebugBark);
+    audioRecorderService.audioRecordedCallback = audioRecordedCallback;
   }
 
   Future<void> onInitialize(InitializeAudioRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
     await audioRecorderService.initialize();
     // start timer
-    volumeUpdateTimer = Timer.periodic(Duration(milliseconds: volumeUpdateIntervalMillis), (timer) => add(UpdateVolume()));
-    detectNoiseTimer = Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) => add(DetectNoise()));
-    actionsPlayerTimer = Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) => add(PlayAction()));
+    volumeUpdateTimer = Timer.periodic(Duration(milliseconds: volumeUpdateIntervalMillis), (timer) async => await updateVolume());
+    detectNoiseTimer = Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) async => await detectNoise());
+    actionsPlayerTimer = Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) async => await playAction());
   }
 
-
-
-  Future<void> onDetectNoise(DetectNoise event, Emitter<AbstractAudioRecorderState> emit) async {
-    double amplitude = await audioRecorderService.currentAmplitude;
-
-    if (amplitude > amplitudeThreshold && !isRecording) {
-      // detected noise
-      isRecording = true;
-      add(RecordNoise());
-    } else {
-      // silence
-      add(RestartRecorder());
-    }
-  }
-
-  Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
+  Future<void> updateVolume() async {
     double amplitude = await audioRecorderService.currentAmplitude;
     double volume = 0;
     if (amplitude > minAmplitude) {
       volume = (amplitude - minAmplitude) / minAmplitude;
     }
 
+    add(UpdateVolume(volume: volume));
+  }
+
+  Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
     switch(state) {
       case AudioRecorderState(actions: var actions, actionToExecute: var actionToExecute):
-        emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: actionToExecute));
+        emit(AudioRecorderState(volume: event.volume, actions: actions, actionToExecute: actionToExecute));
     }
   }
 
-  Future<void> onRestartRecorder(RestartRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
-    if (isRecording) {
-      logger.debug("audio recording currently in progress, skipping recorder restart");
-      return;
-    }
+  Future<void> detectNoise() async {
+    double amplitude = await audioRecorderService.currentAmplitude;
 
-    await audioRecorderService.restartRecording();
+    if (amplitude > amplitudeThreshold && !isRecording) {
+      // detected noise
+      isRecording = true;
+      add(RecordNoise());
+    }
+    // silence
+    else if(isRecording) {
+      logger.debug("audio recording currently in progress, skipping recorder restart");
+    } else {
+      await audioRecorderService.restartRecording();
+    }
   }
 
   Future<void> onRecordNoise(RecordNoise event, Emitter<AbstractAudioRecorderState> emit) async {
@@ -103,46 +95,18 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     }));
   }
 
-
-  Future<void> onAudioRecorded(AudioRecorded event, Emitter<AbstractAudioRecorderState> emit) async {
-    logger.info("Received audio recorded event with id: ${event.audioId} and audio size: ${event.audio.length}");
-    var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(event.audio);
-    if(barkingResponse.barking) {
-      logger.warn("Barking detected");
-      switch(state) {
-        case AudioRecorderState(volume: var volume, actions: var actions, actionToExecute: var actionToExecute):
-          emit(AudioRecorderState(volume: volume, actionToExecute: actionToExecute, actions: actions + barkingResponse.actions));
-      }
-    } else {
-      logger.debug("No barking");
-    }
-    isRecording = false;
-  }
-
   Future<void> stopRecording() async {
     logger.info("Stopping audio recording");
     await audioRecorderService.stopRecording();
   }
 
-
-  @override
-  Future<void> close() async {
-    volumeUpdateTimer.cancel();
-    detectNoiseTimer.cancel();
-    actionsPlayerTimer.cancel();
-    await audioRecorderService.dispose();
-    await super.close();
-  }
-
-
-  Future<void> onPlayAction(PlayAction event, Emitter<AbstractAudioRecorderState> emit) async {
+  Future<void> playAction() async {
     switch (state) {
       case AudioRecorderState(actionToExecute: var actionToExecute) when actionToExecute != null:
         logger.debug("Skipping play action, last action is still being executed");
-      case AudioRecorderState(volume: var volume, actions: var actions) when actions.isNotEmpty:
+      case AudioRecorderState(actions: var actions) when actions.isNotEmpty:
         Action actionToExecute = actions.removeAt(0);
         logger.info("Playing next action: ${actionToExecute.action}");
-        emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: actionToExecute));
         add(ExecuteAction(action: actionToExecute));
       default:
         logger.debug("Skipping play action, there are no actions to execute");
@@ -156,5 +120,37 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
         logger.info("Executing action: ${actionToExecute?.action?? "No action"}");
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: null));
     }
+  }
+
+  Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
+    logger.info("Received audio recorded event with id: $audioId and audio size: ${audio.length}");
+    var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(audio);
+    if(barkingResponse.barking) {
+      logger.info("Barking detected");
+      add(AddActions(actions: barkingResponse.actions));
+    } else {
+      logger.debug("No barking");
+    }
+    isRecording = false;
+  }
+
+  Future<void> onAddActions(AddActions event, Emitter<AbstractAudioRecorderState> emit) async {
+    switch(state) {
+      case AudioRecorderState(volume: var volume, actions: var actions, actionToExecute: var actionToExecute):
+        emit(AudioRecorderState(volume: volume, actionToExecute: actionToExecute, actions: actions + event.actions,));
+    }
+  }
+
+  Future<void> onDebugBark(ExecuteAction event, Emitter<AbstractAudioRecorderState> emit) async {
+    await audioRecordedCallback(audio: Uint8List(0), audioId: 0);
+  }
+
+  @override
+  Future<void> close() async {
+    volumeUpdateTimer.cancel();
+    detectNoiseTimer.cancel();
+    actionsPlayerTimer.cancel();
+    await audioRecorderService.dispose();
+    await super.close();
   }
 }
