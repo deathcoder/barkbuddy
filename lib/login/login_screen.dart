@@ -1,12 +1,17 @@
+import 'dart:async';
+
+import 'package:after_layout/after_layout.dart';
+import 'package:barkbuddy/common/widgets/horizontal_space.dart';
 import 'package:barkbuddy/home/home_screen.dart';
+import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../common/logo.dart';
 import '../common/widgets/material_filled_button.dart';
 import '../common/widgets/vertical_space.dart';
 
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   static Route<void> route() {
@@ -14,25 +19,35 @@ class LoginScreen extends StatelessWidget {
   }
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> with AfterLayoutMixin<LoginScreen> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SafeArea(
-            child: Center(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  VerticalSpace.medium(),
-                  const LoginHeader(),
-                  VerticalSpace.medium(),
-                  const LoginBody(),
-                ],
-              ),
+        padding: const EdgeInsets.all(8.0),
+        child: SafeArea(
+          child: Center(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                VerticalSpace.medium(),
+                const LoginHeader(),
+                VerticalSpace.medium(),
+                const LoginBody(),
+              ],
             ),
           ),
         ),
+      ),
     );
+  }
+
+  @override
+  Future<void> afterFirstLayout(BuildContext context) async {
+    await context.read<NotificationService>().initialize();
   }
 }
 
@@ -44,33 +59,33 @@ class LoginBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8.0),
-          child: Column(
-            children: [
-              Text(
-                "Experience the Future of Dog Sitting!",
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              VerticalSpace.small(),
-              Text(
-                "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall!
-                    .copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha(150)),
-                textAlign: TextAlign.center,
-              ),
-              VerticalSpace.medium(),
-              const SecurityBox(),
-              VerticalSpace.small(),
-              const StartButton(),
-              VerticalSpace.small(),
-              const TermsAndConditions(),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8.0),
+        child: Column(
+          children: [
+            Text(
+              "Experience the Future of Dog Sitting!",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            VerticalSpace.small(),
+            Text(
+              "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall!
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha(150)),
+              textAlign: TextAlign.center,
+            ),
+            VerticalSpace.medium(),
+            const SecurityBox(),
+            VerticalSpace.small(),
+            const TermsAndConditions(),
+            VerticalSpace.medium(),
+            const StartButton(),
+          ],
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -81,21 +96,27 @@ class StartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.center,
       children: [
-        Expanded(
-          child: MaterialFilledButton(
-              onPressed: () => Navigator.of(context).pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false),
-              height: 60,
-              //icon: const Icon(Icons.),
-              label: Text(
-                "Get Started Now!",
-                style: Theme.of(context).textTheme.labelLarge!.apply(
-                    fontWeightDelta: 10,
-                    color: Theme.of(context).colorScheme.onPrimary
-                ),
-              )),
-        ),
+        MaterialFilledButton(
+            onPressed: () => Navigator.of(context).pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false),
+            height: 60,
+            //icon: const Icon(Icons.),
+            label: Text(
+              "Get Started Now!",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge!
+                  .apply(fontWeightDelta: 10, color: Theme.of(context).colorScheme.onPrimary),
+            )),
+        HorizontalSpace.small(),
+        MaterialFilledButton(
+            label: const Text("[debug] get fcm token"),
+            height: 60,
+            onPressed: () async {
+              await context.read<NotificationService>().fcmToken;
+            })
       ],
     );
   }
@@ -136,6 +157,7 @@ class SecurityBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      surfaceTintColor: Theme.of(context).colorScheme.onSurface,
       elevation: 4,
       child: InkWell(
         onTap: () => {},
@@ -143,28 +165,32 @@ class SecurityBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.0),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 20),
-          child: Row(children: [
-            Icon(
-              Icons.safety_check,
-              size: 50,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            Expanded(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.safety_check,
+                size: 50,
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              Expanded(
                 child: RichText(
-              text: TextSpan(
-                  text: "Bark Buddy uses ",
-                  style: Theme.of(context).textTheme.labelLarge,
-                  children: [
+                  text: TextSpan(text: "Bark Buddy uses ", style: Theme.of(context).textTheme.labelLarge, children: [
                     TextSpan(
                         text: "Firebase",
-                        style: Theme.of(context).textTheme.labelLarge!.apply(
-                            fontWeightDelta: 4, color: Theme.of(context).colorScheme.secondary)),
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelLarge!
+                            .apply(fontWeightDelta: 4, color: Theme.of(context).colorScheme.secondary)),
                     const TextSpan(
                       text: " to ensure security when continuing with Google",
                     ),
                   ]),
-            ))
-          ]),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

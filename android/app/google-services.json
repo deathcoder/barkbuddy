@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "669358768813",
+    "project_id": "barkbuddy-ai",
+    "storage_bucket": "barkbuddy-ai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:669358768813:android:a242827ef26602eae13c24",
+        "android_client_info": {
+          "package_name": "com.example.barkbuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBI2OQM1lCOjPMVTVEg369R8Zvw7Q2wmcg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

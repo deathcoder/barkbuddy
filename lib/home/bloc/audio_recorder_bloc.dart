@@ -43,7 +43,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     on<UpdateVolume>(onUpdateVolume);
     on<RecordNoise>(onRecordNoise);
     on<ExecuteAction>(onExecuteAction);
-    on<ExecuteAction>(onDebugBark);
+    on<DebugBark>(onDebugBark);
     audioRecorderService.audioRecordedCallback = audioRecordedCallback;
   }
 
@@ -141,7 +141,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     }
   }
 
-  Future<void> onDebugBark(ExecuteAction event, Emitter<AbstractAudioRecorderState> emit) async {
+  Future<void> onDebugBark(DebugBark event, Emitter<AbstractAudioRecorderState> emit) async {
     await audioRecordedCallback(audio: Uint8List(0), audioId: 0);
   }
 
