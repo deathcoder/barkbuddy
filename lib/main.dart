@@ -26,6 +26,6 @@ Future<void> main() async {
     Provider<RecorderService>(create: (context) => Settings.stub ? StubRecorderService() : AudioRecorderService()),
     Provider<BarkbuddyAiService>(
         create: (context) => Settings.stub ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "apiKey")),
-    Provider<NotificationService>(create: (context) => NotificationService()..initialize(),),
+    Provider<NotificationService>(create: (context) => NotificationService(),),
   ], child: const App()));
 }

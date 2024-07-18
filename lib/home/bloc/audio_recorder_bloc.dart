@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/action.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -18,6 +19,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
 
   final RecorderService audioRecorderService;
   final BarkbuddyAiService barkbuddyAiService;
+  final NotificationService notificationService;
 
   late Timer volumeUpdateTimer;
   late Timer detectNoiseTimer;
@@ -32,6 +34,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   AudioRecorderBloc({
     required this.audioRecorderService,
     required this.barkbuddyAiService,
+    required this.notificationService,
     this.isRecording = false,
     this.minAmplitude = -45.0,
     this.recordSeconds = 3,
@@ -114,6 +117,9 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onExecuteAction(ExecuteAction event, Emitter<AbstractAudioRecorderState> emit) async {
+    if(event.action.action == 'action_5' && event.action.message != null) {
+      await notificationService.sendNotification(message: event.action.message!);
+    }
     await Future.delayed(const Duration(seconds: 10));
     switch(state) {
       case AudioRecorderState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):

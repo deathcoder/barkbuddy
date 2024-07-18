@@ -40,4 +40,10 @@ class NotificationService {
   Future<void> dispose() async {
     await onMessageSubscription.cancel();
   }
+
+  Future<void> sendNotification({required String message}) async {
+    var token = await fcmToken;
+    // call server api
+    logger.log("sending notification message [$message] to: $token");
+  }
 }
