@@ -1,1 +1,56 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"barkbuddy-ai","appId":"1:669358768813:android:a242827ef26602eae13c24","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"barkbuddy-ai","appId":"1:669358768813:ios:fcac04da1b958ecee13c24","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"barkbuddy-ai","appId":"1:669358768813:ios:fcac04da1b958ecee13c24","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"barkbuddy-ai","configurations":{"android":"1:669358768813:android:a242827ef26602eae13c24","ios":"1:669358768813:ios:fcac04da1b958ecee13c24","macos":"1:669358768813:ios:fcac04da1b958ecee13c24","web":"1:669358768813:web:526ff02264f29d46e13c24","windows":"1:669358768813:web:8bba992dfe50fe83e13c24"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "barkbuddy-ai",
+          "appId": "1:669358768813:android:a242827ef26602eae13c24",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "barkbuddy-ai",
+          "appId": "1:669358768813:ios:fcac04da1b958ecee13c24",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "barkbuddy-ai",
+          "appId": "1:669358768813:ios:fcac04da1b958ecee13c24",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "barkbuddy-ai",
+          "configurations": {
+            "android": "1:669358768813:android:a242827ef26602eae13c24",
+            "ios": "1:669358768813:ios:fcac04da1b958ecee13c24",
+            "macos": "1:669358768813:ios:fcac04da1b958ecee13c24",
+            "web": "1:669358768813:web:526ff02264f29d46e13c24",
+            "windows": "1:669358768813:web:8bba992dfe50fe83e13c24"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}
