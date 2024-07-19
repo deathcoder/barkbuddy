@@ -4,6 +4,7 @@ import 'package:after_layout/after_layout.dart';
 import 'package:barkbuddy/common/widgets/horizontal_space.dart';
 import 'package:barkbuddy/home/home_screen.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -110,8 +111,8 @@ class StartButton extends StatelessWidget {
                   .labelLarge!
                   .apply(fontWeightDelta: 10, color: Theme.of(context).colorScheme.onPrimary),
             )),
-        HorizontalSpace.small(),
-        MaterialFilledButton(
+        if(!kIsWeb) HorizontalSpace.small(),
+        if(!kIsWeb)  MaterialFilledButton(
             label: const Text("[debug] get fcm token"),
             height: 60,
             onPressed: () async {
@@ -174,7 +175,7 @@ class SecurityBox extends StatelessWidget {
                 size: 50,
                 color: Theme.of(context).colorScheme.secondary,
               ),
-              Expanded(
+              Flexible(
                 child: RichText(
                   text: TextSpan(text: "Bark Buddy uses ", style: Theme.of(context).textTheme.labelLarge, children: [
                     TextSpan(

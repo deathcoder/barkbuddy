@@ -24,7 +24,7 @@ final class RecordNoise extends AudioRecorderEvent {
 }
 
 final class ExecuteAction extends AudioRecorderEvent {
-  final Action action;
+  final BarkbuddyAction action;
 
   const ExecuteAction({required this.action});
 
@@ -33,7 +33,7 @@ final class ExecuteAction extends AudioRecorderEvent {
 }
 
 final class AddActions extends AudioRecorderEvent {
-  final List<Action> actions;
+  final List<BarkbuddyAction> actions;
 
   const AddActions({required this.actions});
 

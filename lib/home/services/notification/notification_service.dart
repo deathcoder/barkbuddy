@@ -10,11 +10,13 @@ class NotificationService {
   late StreamSubscription<RemoteMessage> onMessageSubscription;
   
   Future<void> initialize() async {
-    await firebaseMessaging.requestPermission();
-    onMessageSubscription = FirebaseMessaging.onMessage
-        .listen((data) {
-      logger.info("received notification");
-    });
+    if (!kIsWeb) {
+      await firebaseMessaging.requestPermission();
+      onMessageSubscription = FirebaseMessaging.onMessage
+          .listen((data) {
+        logger.info("received notification");
+      });
+    }
   }
 
   Future<String?> get fcmToken async {

@@ -8,8 +8,8 @@ sealed class AbstractAudioRecorderState extends Equatable {
 
 final class AudioRecorderState extends AbstractAudioRecorderState {
   final double volume;
-  final List<Action> actions;
-  final Action? actionToExecute;
+  final List<BarkbuddyAction> actions;
+  final BarkbuddyAction? actionToExecute;
   final DateTime noCache;
 
   AudioRecorderState({this.volume = uninitializedVolume, this.actions = const [], this.actionToExecute}) : noCache = DateTime.now();
