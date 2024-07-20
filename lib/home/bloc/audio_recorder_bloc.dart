@@ -6,9 +6,11 @@ import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
 
 part 'audio_recorder_event.dart';
 part 'audio_recorder_state.dart';
@@ -20,6 +22,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   final RecorderService audioRecorderService;
   final BarkbuddyAiService barkbuddyAiService;
   final NotificationService notificationService;
+  final TextToSpeechService textToSpeechService;
 
   late Timer volumeUpdateTimer;
   late Timer detectNoiseTimer;
@@ -35,6 +38,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     required this.audioRecorderService,
     required this.barkbuddyAiService,
     required this.notificationService,
+    required this.textToSpeechService,
     this.isRecording = false,
     this.minAmplitude = -45.0,
     this.recordSeconds = 3,
@@ -126,10 +130,15 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     if(event.action.action == 'action_5' && event.action.message != null) {
       await notificationService.sendNotification(message: event.action.message!);
     }
+
+    if(event.action.action == 'action_2' && event.action.message != null) {
+      AudioPlayer audioPlayer = await textToSpeechService.synthesize(message: event.action.message!);
+      await audioPlayer.play();
+    }
+    logger.debug("starting 10s action execution sleep");
     await Future.delayed(const Duration(seconds: 10));
     switch(state) {
-      case AudioRecorderState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):
-        logger.info("Executing action: ${actionToExecute?.action?? "No action"}");
+      case AudioRecorderState(volume: var volume, actions: var actions):
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: null));
     }
   }
