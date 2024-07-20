@@ -47,6 +47,7 @@ dependencies:
   firebase_messaging: ^15.0.3
   after_layout: ^1.2.0
   just_audio: ^0.9.39
+  fluttertoast: ^8.2.6
 
 dev_dependencies:
   flutter_test:

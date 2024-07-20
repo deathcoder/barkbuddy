@@ -4,6 +4,8 @@ import 'package:barkbuddy/firebase_options.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/services/ai/stub_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/notification/firebase_notification_service.dart';
+import 'package:barkbuddy/home/services/notification/local_notification_service.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/services/recorder/audio_recorder_service.dart';
 import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
@@ -25,10 +27,18 @@ Future<void> main() async {
 
   Logger.root.level = Level.INFO;
   runApp(MultiProvider(providers: [
-    Provider<RecorderService>(create: (context) => Settings.stub ? StubRecorderService() : AudioRecorderService()),
+    Provider<RecorderService>(
+      create: (context) => Settings.stub ? StubRecorderService() : AudioRecorderService(),
+      dispose: (context, value) async => await value.dispose(),
+    ),
     Provider<BarkbuddyAiService>(
-        create: (context) => Settings.stub ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "apiKey")),
-    Provider<NotificationService>(create: (context) => NotificationService(),),
-    Provider<TextToSpeechService>(create: (context) => StubTtsService(),),
+        create: (context) => Settings.stub ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "apiKey"),
+    ),
+    Provider<NotificationService>(
+      create: (context) => Settings.stub ? LocalNotificationService() : FirebaseNotificationService(),
+    ),
+    Provider<TextToSpeechService>(
+      create: (context) => StubTtsService(),
+    ),
   ], child: const App()));
 }

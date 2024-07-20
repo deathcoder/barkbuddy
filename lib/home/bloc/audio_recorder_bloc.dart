@@ -163,6 +163,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onDebugBark(DebugBark event, Emitter<AbstractAudioRecorderState> emit) async {
+    await notificationService.sendNotification(message: "bark!");
     await audioRecorderService.stopRecording();
   }
 
@@ -171,7 +172,6 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     volumeUpdateTimer.cancel();
     detectNoiseTimer.cancel();
     actionsPlayerTimer.cancel();
-    await audioRecorderService.dispose();
     await super.close();
   }
 }
