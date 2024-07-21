@@ -48,6 +48,7 @@ dependencies:
   after_layout: ^1.2.0
   just_audio: ^0.9.39
   fluttertoast: ^8.2.6
+  settings_ui: ^2.0.2
 
 dev_dependencies:
   flutter_test:

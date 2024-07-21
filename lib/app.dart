@@ -39,6 +39,7 @@ class _AppViewState extends State<AppView> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Bark Buddy',
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
