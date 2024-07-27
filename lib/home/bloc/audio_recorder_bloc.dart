@@ -13,6 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 part 'audio_recorder_event.dart';
+
 part 'audio_recorder_state.dart';
 
 class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderState> {
@@ -42,7 +43,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     this.isRecording = false,
     this.minAmplitude = -45.0,
     this.recordSeconds = 3,
-    this.detectNoiseIntervalMillis = 300,
+    this.detectNoiseIntervalMillis = 1000,
     this.volumeUpdateIntervalMillis = 50,
     this.actionsPlayerIntervalMillis = 3000,
   }) : super(AudioRecorderState()) {
@@ -58,9 +59,12 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   Future<void> onInitialize(InitializeAudioRecorder event, Emitter<AbstractAudioRecorderState> emit) async {
     await audioRecorderService.initialize();
     // start timer
-    volumeUpdateTimer = Timer.periodic(Duration(milliseconds: volumeUpdateIntervalMillis), (timer) async => await updateVolume());
-    detectNoiseTimer = Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) async => await detectNoise());
-    actionsPlayerTimer = Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) async => await playAction());
+    volumeUpdateTimer =
+        Timer.periodic(Duration(milliseconds: volumeUpdateIntervalMillis), (timer) async => await updateVolume());
+    detectNoiseTimer =
+        Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) async => await detectNoise());
+    actionsPlayerTimer =
+        Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) async => await playAction());
   }
 
   Future<void> updateVolume() async {
@@ -74,9 +78,14 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractAudioRecorderState> emit) async {
-    switch(state) {
+    switch (state) {
       case AudioRecorderState(actions: var actions, actionToExecute: var actionToExecute):
-        emit(AudioRecorderState(volume: event.volume, actions: actions, actionToExecute: actionToExecute));
+        emit(AudioRecorderState(
+          volume: event.volume,
+          actions: actions,
+          actionToExecute: actionToExecute,
+          logDebugTransition: true,
+        ));
     }
   }
 
@@ -89,7 +98,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
       add(RecordNoise());
     }
     // silence
-    else if(isRecording) {
+    else if (isRecording) {
       logger.debug("audio recording currently in progress, skipping recorder restart");
     } else {
       await audioRecorderService.restartRecording();
@@ -122,22 +131,22 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onExecuteAction(ExecuteAction event, Emitter<AbstractAudioRecorderState> emit) async {
-    switch(state) {
+    switch (state) {
       case AudioRecorderState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):
-        logger.info("Executing action: ${actionToExecute?.action?? "No action"}");
+        logger.info("Executing action: ${actionToExecute?.action ?? "No action"}");
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: event.action));
     }
-    if(event.action.action == 'action_5' && event.action.message != null) {
+    if (event.action.action == 'action_5' && event.action.message != null) {
       await notificationService.sendNotification(message: event.action.message!);
     }
 
-    if(event.action.action == 'action_2' && event.action.message != null) {
+    if (event.action.action == 'action_2' && event.action.message != null) {
       AudioPlayer audioPlayer = await textToSpeechService.synthesize(message: event.action.message!);
       await audioPlayer.play();
     }
     logger.debug("starting 10s action execution sleep");
     await Future.delayed(const Duration(seconds: 10));
-    switch(state) {
+    switch (state) {
       case AudioRecorderState(volume: var volume, actions: var actions):
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: null));
     }
@@ -146,7 +155,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
     logger.info("Received audio recorded event with id: $audioId and audio size: ${audio.length}");
     var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(audio);
-    if(barkingResponse.barking) {
+    if (barkingResponse.barking) {
       logger.info("Barking detected");
       add(AddActions(actions: barkingResponse.actions));
     } else {
@@ -156,9 +165,13 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   void onAddActions(AddActions event, Emitter<AbstractAudioRecorderState> emit) {
-    switch(state) {
+    switch (state) {
       case AudioRecorderState(volume: var volume, actions: var actions, actionToExecute: var actionToExecute):
-        emit(AudioRecorderState(volume: volume, actionToExecute: actionToExecute, actions: actions + event.actions,));
+        emit(AudioRecorderState(
+          volume: volume,
+          actionToExecute: actionToExecute,
+          actions: [...actions, ...event.actions],
+        ));
     }
   }
 

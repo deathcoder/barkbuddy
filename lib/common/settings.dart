@@ -1,4 +1,15 @@
 class Settings {
-  static const bool stub = true;
-  //static const bool stub = false;
+  static final Stub stub = Stub();
+}
+
+class Stub {
+  final bool gemini;
+  final bool audio;
+  final bool notifications;
+
+  Stub({
+    this.gemini = true,
+    this.audio = true,
+    this.notifications = true,
+  });
 }

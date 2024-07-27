@@ -10,9 +10,15 @@ final class AudioRecorderState extends AbstractAudioRecorderState {
   final double volume;
   final List<BarkbuddyAction> actions;
   final BarkbuddyAction? actionToExecute;
+  final bool logDebugTransition;
   final DateTime noCache;
 
-  AudioRecorderState({this.volume = uninitializedVolume, this.actions = const [], this.actionToExecute}) : noCache = DateTime.now();
+  AudioRecorderState({
+    this.volume = uninitializedVolume,
+    this.actions = const [],
+    this.actionToExecute,
+    this.logDebugTransition = false,
+  }) : noCache = DateTime.now();
 
   bool get hasData => volume != uninitializedVolume;
 

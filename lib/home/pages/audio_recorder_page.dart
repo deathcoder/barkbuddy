@@ -25,7 +25,7 @@ class AudioRecorderPage extends StatelessWidget {
           VerticalSpace.medium(),
           const CurrentAction(),
           VerticalSpace.small(),
-          if (Settings.stub)
+          if (Settings.stub.audio)
             MaterialFilledButton(
                 label: const Text("bark!"),
                 onPressed: () => context.read<AudioRecorderBloc>().add(DebugBark()))

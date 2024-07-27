@@ -3,6 +3,8 @@ import 'dart:developer' as developer;
 import 'package:logging/logging.dart';
 
 class Logger {
+  static Level rootLevel = Level.INFO;
+  
   final String name;
 
   Logger({required this.name});
@@ -24,6 +26,8 @@ class Logger {
   }
 
   void log(String message, {Level level = Level.INFO}) {
-    developer.log(message, name: name, level: level.value);
+    if(level >= rootLevel) {
+      developer.log(message, name: name, level: level.value);
+    }
   }
 }

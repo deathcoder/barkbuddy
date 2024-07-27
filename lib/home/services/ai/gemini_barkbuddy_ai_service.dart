@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
+import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -9,7 +10,6 @@ import 'package:pcmtowave/pcmtowave.dart';
 class GeminiBarkbuddyAiService implements BarkbuddyAiService {
   static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 
-  bool apiCalled = true; // todo revert this to actually call gemini
   static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.
 
@@ -66,11 +66,7 @@ Example Output:
 
   @override
   Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom(Uint8List audio) async {
-    if(apiCalled) {
-      return BarkbuddyAiResponse(barking: false, stressLevel: "low");
-    }
 
-    apiCalled = true;
     final prompt = [
       Content.multi([
         TextPart(systemPrompt),
@@ -85,7 +81,14 @@ Example Output:
 
     if(generateContentResponse.text != null){
       logger.info("Computer says: ${generateContentResponse.text}");
-      return BarkbuddyAiResponse(barking: true, stressLevel: "mild");
+      // todo need to extract actions from response
+      return BarkbuddyAiResponse(barking: true, stressLevel: "mild", actions: [
+        BarkbuddyAction(action: "action_1", id: "audio_1"),
+        BarkbuddyAction(action: "action_2", message: "Good boy, everything is alright."),
+        BarkbuddyAction(action: "action_3"),
+        BarkbuddyAction(action: "action_4", id: "toy_1"),
+        BarkbuddyAction(action: "action_5", message: "Dog seems a bit restless. Please check the camera and see if they need anything."),
+      ]);
     } else {
       logger.warn("Computer says no :(");
       return BarkbuddyAiResponse(barking: false, stressLevel: "none");

@@ -42,6 +42,8 @@ class AudioRecorderService implements RecorderService {
     if (await audioRecorder.hasPermission()) {
       if (!await audioRecorder.isRecording()) {
         // start recording
+        logger.info("[initialize] starting audio recording");
+
         audioStream = await _startAudioStream();
       }
     }
@@ -81,7 +83,7 @@ class AudioRecorderService implements RecorderService {
       throw Exception(message);
     }
 
-    logger.info("starting audio recording with id: $audioId");
+    logger.debug("starting audio recording with id: $audioId");
     return (await audioRecorder
         .startStream(const RecordConfig(sampleRate: 44100, encoder: AudioEncoder.pcm16bits, numChannels: 1)))
         .listen((data) {
