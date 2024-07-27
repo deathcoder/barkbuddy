@@ -42,7 +42,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
     required this.textToSpeechService,
     this.isRecording = false,
     this.minAmplitude = -45.0,
-    this.recordSeconds = 3,
+    this.recordSeconds = 10,
     this.detectNoiseIntervalMillis = 1000,
     this.volumeUpdateIntervalMillis = 50,
     this.actionsPlayerIntervalMillis = 3000,

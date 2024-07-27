@@ -20,7 +20,8 @@ class StubBarkbuddyAiService implements BarkbuddyAiService {
           BarkbuddyAction(action: "action_3"),
           BarkbuddyAction(action: "action_4", id: "toy_1"),
           BarkbuddyAction(action: "action_5", message: "Dog seems a bit restless. Please check the camera and see if they need anything."),
-        ]
+        ],
+        audioDescription: 'a dog barked once'
     );
   }
 

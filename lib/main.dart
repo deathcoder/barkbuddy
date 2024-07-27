@@ -37,6 +37,7 @@ Future<void> main() async {
       dispose: (context, value) async => await value.dispose(),
     ),
     Provider<BarkbuddyAiService>(
+      // todo rotate leaked api key
         create: (context) => Settings.stub.gemini ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
     ),
     Provider<NotificationService>(

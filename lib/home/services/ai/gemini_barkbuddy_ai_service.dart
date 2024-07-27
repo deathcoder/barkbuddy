@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
-import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
@@ -15,13 +14,16 @@ You are a sophisticated multimodal language model designed to assist in monitori
 
 Tasks:
 
-1) Detect Barking:
+1) Describe Audio:
+Analyze the provided audio clip and generate a short audio description of the sounds, if there are people talking then transcribe what has been said
+
+2) Detect Barking:
 Analyze the provided audio clip for any instances of barking.
 
-2) Evaluate Stress Level:
+3) Evaluate Stress Level:
 Consider the frequency and intensity of barking to evaluate the dog's current stress level.
 
-3) Generate Actions:
+4) Generate Actions:
 Based on the detected stress level, choose appropriate actions from the following list:
 action_1: Play pre-recorded audio {audio_id} by the owner.
 action_2: Generate a custom message (this message will be played back to the dog using text-to-speech).
@@ -41,6 +43,7 @@ Toys:
 {"toy_id": "toy_2", "description": "squeaky bear - once activated will squeak 3 times every 3 seconds"}
 
 Output:
+- an audio description string field
 - a barking boolean field, if barking has been detected
 - a stress level string field
 - a list of actions to be taken to help alleviate the dog's stress with the following format:
@@ -48,8 +51,9 @@ Output:
   
 Example Output:
 {
+  "audioDescription": "a big dog barking loudly"
   "barking": true,
-  "stress_level": "high",
+  "stressLevel": "high",
   "actions": [
     {"action": "action_1", "id": "audio_3"},
     {"action": "action_3"},
@@ -80,17 +84,10 @@ Example Output:
 
     if(generateContentResponse.text != null){
       logger.info("Computer says: ${generateContentResponse.text}");
-      // todo need to extract actions from response
-      return BarkbuddyAiResponse(barking: true, stressLevel: "mild", actions: [
-        BarkbuddyAction(action: "action_1", id: "audio_1"),
-        BarkbuddyAction(action: "action_2", message: "Good boy, everything is alright."),
-        BarkbuddyAction(action: "action_3"),
-        BarkbuddyAction(action: "action_4", id: "toy_1"),
-        BarkbuddyAction(action: "action_5", message: "Dog seems a bit restless. Please check the camera and see if they need anything."),
-      ]);
+      return BarkbuddyAiResponse.fromJsonString(generateContentResponse.text!);
     } else {
       logger.warn("Computer says no :(");
-      return BarkbuddyAiResponse(barking: false, stressLevel: "none");
+      return BarkbuddyAiResponse(barking: false, stressLevel: "none", audioDescription: "audio processing error");
     }
   }
 }

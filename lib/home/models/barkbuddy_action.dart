@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part '../../generated/home/models/barkbuddy_action.g.dart';
+
+@JsonSerializable()
 class BarkbuddyAction {
   final String action;
   final String? id;
@@ -9,4 +14,8 @@ class BarkbuddyAction {
   String toString() {
     return '{action: $action, id: $id, message: $message}';
   }
+
+  factory BarkbuddyAction.fromJson(Map<String, dynamic> json) => _$BarkbuddyActionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BarkbuddyActionToJson(this);
 }
