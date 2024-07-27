@@ -12,6 +12,7 @@ import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/services/recorder/audio_recorder_service.dart';
 import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
 import 'package:barkbuddy/home/services/recorder/stub_recorder_service.dart';
+import 'package:barkbuddy/home/services/tts/google_tts_service.dart';
 import 'package:barkbuddy/home/services/tts/stub_tts_service.dart';
 import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -44,7 +45,7 @@ Future<void> main() async {
       create: (context) => Settings.stub.notifications || kIsWeb ? LocalNotificationService() : FirebaseNotificationService(),
     ),
     Provider<TextToSpeechService>(
-      create: (context) => StubTtsService(),
+      create: (context) => Settings.stub.textToSpeech ? StubTtsService() : GoogleTtsService(projectId: 'chatterbox-73d26'),
     ),
   ], child: const App()));
 }
