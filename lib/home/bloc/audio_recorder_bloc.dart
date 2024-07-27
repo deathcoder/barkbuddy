@@ -137,7 +137,8 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
         emit(AudioRecorderState(volume: volume, actions: actions, actionToExecute: event.action));
     }
     if (event.action.action == 'action_5' && event.action.message != null) {
-      await notificationService.sendNotification(message: event.action.message!);
+      // todo make gemini generate title too
+      await notificationService.sendNotification(title: "Barking detected!", body: event.action.message!);
     }
 
     if (event.action.action == 'action_2' && event.action.message != null) {
@@ -176,7 +177,7 @@ class AudioRecorderBloc extends Bloc<AudioRecorderEvent, AbstractAudioRecorderSt
   }
 
   Future<void> onDebugBark(DebugBark event, Emitter<AbstractAudioRecorderState> emit) async {
-    await notificationService.sendNotification(message: "bark!");
+    await notificationService.sendNotification(title: "Barking detected!", body: "bark!");
     await audioRecorderService.stopRecording();
   }
 

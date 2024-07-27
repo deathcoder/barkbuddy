@@ -10,6 +10,11 @@ const app = admin.initializeApp({
 // // https://firebase.google.com/docs/functions/get-started
 //
 export const notification = onRequest((request, response) => {
+  if (request.method !== "POST") {
+    response.status(200).send();
+    return;
+  }
+
   const requestBody = JSON.parse(JSON.stringify(request.body));
   const notificationTitle = requestBody.title;
   const notificationBody = requestBody.body;

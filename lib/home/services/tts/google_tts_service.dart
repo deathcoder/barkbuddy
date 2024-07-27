@@ -50,7 +50,7 @@ class GoogleTtsService implements TextToSpeechService {
       await player.setAudioSource(MP3StreamAudioSource(audioBytes));
       return player;
     } else {
-      throw Exception('Failed to synthesize speech: ${response.statusCode}');
+      throw Exception('Failed to synthesize speech: statusCode ${response.statusCode}');
     }
   }
 }
