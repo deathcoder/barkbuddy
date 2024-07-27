@@ -6,6 +6,7 @@ import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/services/ai/stub_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/services/notification/firebase_notification_service.dart';
 import 'package:barkbuddy/home/services/notification/local_notification_service.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/services/recorder/audio_recorder_service.dart';
@@ -14,6 +15,7 @@ import 'package:barkbuddy/home/services/recorder/stub_recorder_service.dart';
 import 'package:barkbuddy/home/services/tts/stub_tts_service.dart';
 import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart' hide Logger;
@@ -38,7 +40,7 @@ Future<void> main() async {
         create: (context) => Settings.stub.gemini ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
     ),
     Provider<NotificationService>(
-      create: (context) => Settings.stub.notifications ? LocalNotificationService() : LocalNotificationService(),
+      create: (context) => Settings.stub.notifications || kIsWeb ? LocalNotificationService() : FirebaseNotificationService(),
     ),
     Provider<TextToSpeechService>(
       create: (context) => StubTtsService(),

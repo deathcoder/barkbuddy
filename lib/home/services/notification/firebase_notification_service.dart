@@ -30,10 +30,6 @@ class FirebaseNotificationService implements NotificationService {
         logger.info(fcmToken);
         return fcmToken;
       }
-      /* todo dont really need to receive notifications on web
-      else {
-        fcmToken = (await firebaseMessaging.getToken(vapidKey: DefaultFirebaseOptions.currentPlatform.vapidKey))!;
-      }*/
     } catch (error) {
       debugPrint("error initializing FirebaseMessaging: $error");
     }

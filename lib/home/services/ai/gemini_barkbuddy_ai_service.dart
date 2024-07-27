@@ -70,7 +70,6 @@ Example Output:
     final prompt = [
       Content.multi([
         TextPart(systemPrompt),
-        // todo: audio mime type should come from audio_recorder_service
         DataPart('audio/wav', Pcmtowave.pcmToWav(audio, 44100, 1))
       ])
     ];
