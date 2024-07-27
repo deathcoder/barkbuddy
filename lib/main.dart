@@ -15,6 +15,7 @@ import 'package:barkbuddy/home/services/recorder/stub_recorder_service.dart';
 import 'package:barkbuddy/home/services/tts/google_tts_service.dart';
 import 'package:barkbuddy/home/services/tts/stub_tts_service.dart';
 import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
+import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ Future<void> main() async {
     Provider<TextToSpeechService>(
       create: (context) => Settings.stub.textToSpeech ? StubTtsService() : GoogleTtsService(projectId: 'chatterbox-73d26'),
     ),
+    Provider<AuthenticationService>(create: (context) => AuthenticationService()),
   ], child: const App()));
 }
 

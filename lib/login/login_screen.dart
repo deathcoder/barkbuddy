@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:after_layout/after_layout.dart';
-import 'package:barkbuddy/common/widgets/horizontal_space.dart';
+import 'package:barkbuddy/common/logo.dart';
+import 'package:barkbuddy/common/widgets/custom_icons.dart';
+import 'package:barkbuddy/common/widgets/material_filled_button.dart';
+import 'package:barkbuddy/common/widgets/vertical_space.dart';
 import 'package:barkbuddy/home/home_screen.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
-import 'package:flutter/foundation.dart';
+import 'package:barkbuddy/login/bloc/login_bloc.dart';
+import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../common/logo.dart';
-import '../common/widgets/material_filled_button.dart';
-import '../common/widgets/vertical_space.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,22 +23,29 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with AfterLayoutMixin<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen>
+    with AfterLayoutMixin<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SafeArea(
-          child: Center(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                VerticalSpace.medium(),
-                const LoginHeader(),
-                VerticalSpace.medium(),
-                const LoginBody(),
-              ],
+      body: BlocProvider<LoginBloc>(
+        create: (context) => LoginBloc(
+            authenticationService:
+                RepositoryProvider.of<AuthenticationService>(context))
+          ..add(const Initialize()),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SafeArea(
+            child: Center(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  VerticalSpace.medium(),
+                  const LoginHeader(),
+                  VerticalSpace.medium(),
+                  const LoginBody(),
+                ],
+              ),
             ),
           ),
         ),
@@ -59,66 +66,59 @@ class LoginBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8.0),
-        child: Column(
-          children: [
-            Text(
-              "Experience the Future of Dog Sitting!",
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            VerticalSpace.small(),
-            Text(
-              "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurface.withAlpha(150)),
-              textAlign: TextAlign.center,
-            ),
-            VerticalSpace.medium(),
-            const SecurityBox(),
-            VerticalSpace.small(),
-            const TermsAndConditions(),
-            VerticalSpace.medium(),
-            const StartButton(),
-          ],
+    return BlocListener<LoginBloc, LoginState>(
+      listener: (context, state) async {
+        switch (state) {
+          case LoginState(status: var status)
+              when status == LoginStatus.failure:
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(content: Text('Authentication Failure')),
+              );
+          case LoginState(status: var status)
+              when status == LoginStatus.success:
+            await Navigator.of(context)
+                .pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false);
+        }
+      },
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8.0),
+          child: Column(
+            children: [
+              Text(
+                "Experience the Future of Dog Sitting!",
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              VerticalSpace.small(),
+              Text(
+                "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                    color:
+                        Theme.of(context).colorScheme.onSurface.withAlpha(150)),
+                textAlign: TextAlign.center,
+              ),
+              VerticalSpace.medium(),
+              const SecurityBox(),
+              VerticalSpace.medium(),
+              MaterialFilledButton(
+                  onPressed: () =>
+                      context.read<LoginBloc>().add(const LoginSubmitted()),
+                  height: 60,
+                  icon: const Icon(CustomIcons.google),
+                  label: Text(
+                    "Login with Google",
+                    style: Theme.of(context).textTheme.labelLarge!.apply(
+                        fontWeightDelta: 10,
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  )),
+              VerticalSpace.small(),
+              const TermsAndConditions(),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-class StartButton extends StatelessWidget {
-  const StartButton({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      children: [
-        MaterialFilledButton(
-            onPressed: () => Navigator.of(context).pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false),
-            height: 60,
-            //icon: const Icon(Icons.),
-            label: Text(
-              "Get Started Now!",
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge!
-                  .apply(fontWeightDelta: 10, color: Theme.of(context).colorScheme.onPrimary),
-            )),
-        if(!kIsWeb) HorizontalSpace.small(),
-        if(!kIsWeb)  MaterialFilledButton(
-            label: const Text("[debug] get fcm token"),
-            height: 60,
-            onPressed: () async {
-              await context.read<NotificationService>().fcmToken;
-            })
-      ],
     );
   }
 }
@@ -137,14 +137,20 @@ class TermsAndConditions extends StatelessWidget {
             children: [
           TextSpan(
             text: "Privacy Policy",
-            style: Theme.of(context).textTheme.labelLarge!.apply(fontWeightDelta: 4),
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge!
+                .apply(fontWeightDelta: 4),
           ),
           const TextSpan(
             text: " and ",
           ),
           TextSpan(
             text: "T&Cs",
-            style: Theme.of(context).textTheme.labelLarge!.apply(fontWeightDelta: 4),
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge!
+                .apply(fontWeightDelta: 4),
           ),
         ]));
   }
@@ -177,17 +183,25 @@ class SecurityBox extends StatelessWidget {
               ),
               Flexible(
                 child: RichText(
-                  text: TextSpan(text: "Bark Buddy uses ", style: Theme.of(context).textTheme.labelLarge, children: [
-                    TextSpan(
-                        text: "Firebase",
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelLarge!
-                            .apply(fontWeightDelta: 4, color: Theme.of(context).colorScheme.secondary)),
-                    const TextSpan(
-                      text: " to ensure security when continuing with Google",
-                    ),
-                  ]),
+                  text: TextSpan(
+                      text: "Barkbuddy uses ",
+                      style: Theme.of(context).textTheme.labelLarge,
+                      children: [
+                        TextSpan(
+                            text: "Firebase",
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge!
+                                .apply(
+                                    fontWeightDelta: 4,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary)),
+                        const TextSpan(
+                          text:
+                              " to ensure security when continuing with Google",
+                        ),
+                      ]),
                 ),
               )
             ],

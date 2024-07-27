@@ -12,7 +12,20 @@
           "package_name": "com.example.barkbuddy"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "669358768813-0p8v12pe3j6d6pegnojtjjgkj0e6ggo5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.barkbuddy",
+            "certificate_hash": "903c0a1b84bfc00b4f143c743a93698fc40d213b"
+          }
+        },
+        {
+          "client_id": "669358768813-1islsb4s51asot3c868dbl72k8s1485u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBI2OQM1lCOjPMVTVEg369R8Zvw7Q2wmcg"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "669358768813-1islsb4s51asot3c868dbl72k8s1485u.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "669358768813-8hmeihk27s7gh0f85shfn5clgml7k42k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.barkbuddy"
+              }
+            }
+          ]
         }
       }
     }
