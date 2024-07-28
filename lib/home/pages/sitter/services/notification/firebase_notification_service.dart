@@ -1,16 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:http/http.dart' as http;
 
 class FirebaseNotificationService implements NotificationService {
   static final logger = Logger(name: (FirebaseNotificationService).toString());
-  static const String baseUrl = 'https://notification-5wt6kruwzq-uc.a.run.app';
+  static const String baseUrl = 'https://notification-5wt6kruwzq-lz.a.run.app';
 
   late StreamSubscription<RemoteMessage> onMessageSubscription;
 
@@ -64,26 +63,23 @@ class FirebaseNotificationService implements NotificationService {
     );
 
     try {
-      final response = await http.post(
-        Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          "title": title,
-          "body": body,
-          "token": fcmToken,
-        }),
-      );
+      final response =
+          await FirebaseFunctions.instanceFor(region: 'europe-north1')
+              .httpsCallable('notification',
+                  options: HttpsCallableOptions(limitedUseAppCheckToken: true))
+              .call({
+        "title": title,
+        "body": body,
+        "token": fcmToken,
+      });
 
-      if (response.statusCode == 200) {
+      if (response.data?["status"] == "ok") {
         logger.log("Notification was sent successfully");
       } else {
-        throw Exception(
-            'Failed to send notification: statusCode ${response.statusCode}');
+        throw Exception('Failed to send notification: ${response.data}');
       }
     } catch (error) {
-      throw Exception('Failed to send notification: statusCode $error');
+      throw Exception('Failed to send notification: $error');
     }
   }
 }

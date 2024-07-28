@@ -3,13 +3,13 @@ import 'dart:typed_data';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_vertexai/firebase_vertexai.dart';
 import 'package:pcmtowave/pcmtowave.dart';
 
 class GeminiBarkbuddyAiService implements BarkbuddyAiService {
   static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 
-  static const String model = "gemini-1.5-flash-latest";
+  final model = FirebaseVertexAI.instance.generativeModel(model: 'gemini-1.5-flash');
 
   static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.
@@ -72,7 +72,6 @@ Example Output:
     required Uint8List audio,
     required String apiKey,
   }) async {
-    var generativeModel = GenerativeModel(model: model, apiKey: apiKey);
 
     final prompt = [
       Content.multi([
@@ -82,7 +81,7 @@ Example Output:
     ];
 
     GenerateContentResponse generateContentResponse =
-        await generativeModel.generateContent(prompt,
+        await model.generateContent(prompt,
             generationConfig:
                 GenerationConfig(responseMimeType: "application/json"));
 

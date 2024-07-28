@@ -36,6 +36,7 @@ class ServicesService {
     }));
   }
 
+  // todo this service is not needed anymore
   Future<GeminiUserService?> getGeminiUserService() async {
     var user = await userService.getUser();
     if(user == null) {

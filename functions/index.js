@@ -1,4 +1,4 @@
-import {onRequest} from "firebase-functions/v2/https";
+import {HttpsError, onCall} from "firebase-functions/v2/https";
 import {logger} from "firebase-functions/v2";
 import admin from "firebase-admin";
 
@@ -9,16 +9,33 @@ const app = admin.initializeApp({
 // // Create and deploy your first functions
 // // https://firebase.google.com/docs/functions/get-started
 //
-export const notification = onRequest((request, response) => {
-  if (request.method !== "POST") {
-    response.status(200).send();
-    return;
+export const notification = onCall({
+  region: "europe-north1",
+  // enforceAppCheck: true,
+  // consumeAppCheckToken: true,
+},
+async (request) => {
+  if (!request.auth) {
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new HttpsError("failed-precondition", "The function must be " +
+      "called while authenticated.");
   }
 
-  const requestBody = JSON.parse(JSON.stringify(request.body));
-  const notificationTitle = requestBody.title;
-  const notificationBody = requestBody.body;
-  const targetDeviceFCMToken = requestBody.token;
+  const appCheckToken = request.app.token;
+
+  if (!appCheckToken) {
+    throw new HttpsError("unauthenticated", "The function must be " +
+      "called with a valid AppCheck Token.");
+  }
+
+  if (request.app.alreadyConsumed) {
+    throw new HttpsError("unauthenticated", "AppCheck Token already consumed." +
+      " The function must be called with a fresh AppCheck Token.");
+  }
+
+  const notificationTitle = request.data.title;
+  const notificationBody = request.data.body;
+  const targetDeviceFCMToken = request.data.token;
 
   const message = {
     notification: {
@@ -31,16 +48,16 @@ export const notification = onRequest((request, response) => {
   logger.log("Sending notification:", message);
   // Send a message to the device corresponding to the provided
   // registration token.
-  const promise = app.messaging().send(message)
+  await app.messaging().send(message)
       .then((messagingResponse) => {
         // Response is a message ID string.
         logger.log("Successfully sent message:", messagingResponse);
-        response.send({status: "ok"});
       })
       .catch((error) => {
         logger.log("Error sending message:", error);
-        response.status(500).send({status: `error sending message ${error}`});
+        throw new HttpsError("internal", `Error sending message: ${error}`);
       });
-  return promise;
+
+  return {status: "ok"};
 });
 
