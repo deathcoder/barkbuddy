@@ -37,11 +37,6 @@ class ServicesPage extends StatelessWidget {
               ),
               VerticalSpace.small(),
               ElevatedButton(
-                onPressed: () => _showRegisterGeminiDialog(context),
-                child: const Text('Register Gemini Service'),
-              ),
-              VerticalSpace.small(),
-              ElevatedButton(
                 onPressed: () => _showRegisterTtsDialog(context),
                 child: const Text('Register Google Text to Speech Service'),
               ),
