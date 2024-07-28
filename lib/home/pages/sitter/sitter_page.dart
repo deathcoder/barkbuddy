@@ -2,21 +2,21 @@ import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
-import 'package:barkbuddy/home/pages/sitter/bloc/audio_recorder_bloc.dart';
+import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AiSitterPage extends StatelessWidget {
-  const AiSitterPage({super.key});
+class SitterPage extends StatelessWidget {
+  const SitterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(builder: (context, state) {
+    return BlocBuilder<SitterBloc, AbstractSitterState>(builder: (context, state) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           switch (state) {
-            AudioRecorderState(volume: var volume) when state.hasData => Text(
+            SitterState(volume: var volume) when state.hasData => Text(
                 "VOLUME\n${volume0to(volume, 100)}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 41, fontWeight: FontWeight.bold)),
@@ -28,7 +28,7 @@ class AiSitterPage extends StatelessWidget {
           if (Settings.stub.audio)
             MaterialFilledButton(
                 label: const Text("bark!"),
-                onPressed: () => context.read<AudioRecorderBloc>().add(DebugBark()))
+                onPressed: () => context.read<SitterBloc>().add(DebugBark()))
         ],
       );
     });
@@ -47,9 +47,9 @@ class CurrentAction extends StatelessWidget {
     return Column(
       children: [
         const Text("Currently executing"),
-        BlocBuilder<AudioRecorderBloc, AbstractAudioRecorderState>(builder: (context, state) {
+        BlocBuilder<SitterBloc, AbstractSitterState>(builder: (context, state) {
           switch (state) {
-            case AudioRecorderState(actionToExecute: var actionToExecute) when actionToExecute != null:
+            case SitterState(actionToExecute: var actionToExecute) when actionToExecute != null:
               var action = getDescription(actionToExecute);
               return Text(action);
             default:

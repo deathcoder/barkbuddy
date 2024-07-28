@@ -2,7 +2,8 @@ import 'package:barkbuddy/app.dart';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/firebase_options.dart';
-import 'package:barkbuddy/home/pages/sitter/bloc/audio_recorder_bloc.dart';
+import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
+import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
@@ -38,38 +39,55 @@ Future<void> main() async {
   await FirebaseAppCheck.instance.activate(
     // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
     // argument for `webProvider`
-    webProvider: ReCaptchaV3Provider('6LdBCBoqAAAAAM-faNvDHiyBEk5eX5smnYhUkB0L'),
+    webProvider:
+        ReCaptchaV3Provider('6LdBCBoqAAAAAM-faNvDHiyBEk5eX5smnYhUkB0L'),
     // Default provider for Android is the Play Integrity provider. You can use the "AndroidProvider" enum to choose
     // your preferred provider. Choose from:
     // 1. Debug provider
     // 2. Safety Net provider
     // 3. Play Integrity provider
-    androidProvider: AndroidProvider.debug, // todo debug should only be used in debug mode
+    androidProvider: AndroidProvider.debug,
+    // todo debug should only be used in debug mode
     // Default provider for iOS/macOS is the Device Check provider. You can use the "AppleProvider" enum to choose
     // your preferred provider. Choose from:
     // 1. Debug provider
     // 2. Device Check provider
     // 3. App Attest provider
     // 4. App Attest provider with fallback to Device Check provider (App Attest provider is only available on iOS 14.0+, macOS 14.0+)
-    appleProvider: AppleProvider.debug, // todo debug should only be used in debug mode
+    appleProvider:
+        AppleProvider.debug, // todo debug should only be used in debug mode
   );
   runApp(MultiProvider(providers: [
     Provider<RecorderService>(
-      create: (context) => Settings.stub.audio ? StubRecorderService() : AudioRecorderService(),
+      create: (context) =>
+          Settings.stub.audio ? StubRecorderService() : AudioRecorderService(),
       dispose: (context, value) async => await value.dispose(),
     ),
     Provider<BarkbuddyAiService>(
       // todo rotate leaked api key
-        create: (context) => Settings.stub.gemini ? StubBarkbuddyAiService() : GeminiBarkbuddyAiService(apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
+      create: (context) => Settings.stub.gemini
+          ? StubBarkbuddyAiService()
+          : GeminiBarkbuddyAiService(
+              apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
     ),
     Provider<NotificationService>(
-      create: (context) => Settings.stub.notifications || kIsWeb ? LocalNotificationService() : FirebaseNotificationService(),
+      create: (context) => Settings.stub.notifications || kIsWeb
+          ? LocalNotificationService()
+          : FirebaseNotificationService(),
     ),
     Provider<TextToSpeechService>(
-      create: (context) => Settings.stub.textToSpeech ? StubTtsService() : GoogleTtsService(projectId: 'chatterbox-73d26'),
+      create: (context) => Settings.stub.textToSpeech
+          ? StubTtsService()
+          : GoogleTtsService(projectId: 'chatterbox-73d26'),
     ),
-    Provider<AuthenticationService>(create: (context) => AuthenticationService()),
+    Provider<AuthenticationService>(
+        create: (context) => AuthenticationService()),
     Provider<UserService>(create: (context) => UserService()),
+    Provider<DevicesService>(
+        create: (context) => DevicesService(
+              userService: context.read<UserService>(),
+              notificationService: context.read<NotificationService>(),
+            )),
   ], child: const App()));
 }
 
@@ -80,12 +98,13 @@ class SimpleBlocObserver extends BlocObserver {
 
   @override
   void onTransition(
-      Bloc<dynamic, dynamic> bloc,
-      Transition<dynamic, dynamic> transition,
-      ) {
+    Bloc<dynamic, dynamic> bloc,
+    Transition<dynamic, dynamic> transition,
+  ) {
     super.onTransition(bloc, transition);
     switch (transition.nextState) {
-      case AudioRecorderState(logDebugTransition: var logDebugTransition) when logDebugTransition:
+      case SitterState(logDebugTransition: var logDebugTransition)
+          when logDebugTransition:
         logger.debug(transition.toString());
       default:
         logger.info(transition.toString());

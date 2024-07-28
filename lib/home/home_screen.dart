@@ -1,6 +1,6 @@
 import 'package:barkbuddy/home/navigation/destination.dart';
 import 'package:barkbuddy/home/navigation/navigation_scaffold.dart';
-import 'package:barkbuddy/home/pages/sitter/bloc/audio_recorder_bloc.dart';
+import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
@@ -25,13 +25,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AudioRecorderBloc>(
-      create: (context) => AudioRecorderBloc(
+    return BlocProvider<SitterBloc>(
+      create: (context) => SitterBloc(
         textToSpeechService: context.read<TextToSpeechService>(),
         audioRecorderService: context.read<RecorderService>(),
         barkbuddyAiService: context.read<BarkbuddyAiService>(),
         notificationService: context.read<NotificationService>(),
-      )..add(InitializeAudioRecorder()),
+      )..add(InitializeSitter()),
       child: NavigationScaffold(
         selectedIndex: selectedIndex,
         body: SafeArea(

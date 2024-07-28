@@ -11,7 +11,7 @@ class Stub {
   Stub({
     this.gemini = true,
     this.audio = true,
-    this.notifications = true,
+    this.notifications = false,
     this.textToSpeech = true,
   });
 }

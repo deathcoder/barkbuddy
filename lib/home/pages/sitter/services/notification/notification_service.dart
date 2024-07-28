@@ -1,5 +1,5 @@
 abstract interface class NotificationService {
-  get fcmToken;
+  Future<String?> get fcmToken;
 
   Future<void> initialize();
 
