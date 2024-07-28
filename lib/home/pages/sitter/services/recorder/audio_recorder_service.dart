@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
+import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
 import 'package:record/record.dart';
 
-import 'recorder_service.dart';
 
 class AudioRecorderService implements RecorderService {
   static final logger = Logger(name: (AudioRecorderService).toString());

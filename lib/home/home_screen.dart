@@ -1,11 +1,10 @@
-import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
+import 'package:barkbuddy/home/navigation/destination.dart';
 import 'package:barkbuddy/home/navigation/navigation_scaffold.dart';
-import 'package:barkbuddy/home/pages/audio_recorder_page.dart';
-import 'package:barkbuddy/home/pages/settings_page.dart';
-import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
-import 'package:barkbuddy/home/services/notification/notification_service.dart';
-import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
-import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
+import 'package:barkbuddy/home/pages/sitter/bloc/audio_recorder_bloc.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,8 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
       )..add(InitializeAudioRecorder()),
       child: NavigationScaffold(
         selectedIndex: selectedIndex,
-        body: Center(
-          child: selectedIndex == 0 ? const AudioRecorderPage() : const SettingsPage(),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: destinations[selectedIndex].builder(context)
+            ),
+          ),
         ),
         onDestinationSelected: onDestinationSelected,
       ),

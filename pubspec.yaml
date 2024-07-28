@@ -86,9 +86,9 @@ flutter:
    - assets/stubs/tts/good-boy.mp3
 
   fonts:
-    - family: Google Icon
+    - family: barkbuddy-icons
       fonts:
-        - asset: assets/icons/google-icon.ttf
+        - asset: assets/icons/barkbuddy-icons.ttf
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

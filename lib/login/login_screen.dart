@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:after_layout/after_layout.dart';
 import 'package:barkbuddy/common/logo.dart';
-import 'package:barkbuddy/common/widgets/custom_icons.dart';
+import 'package:barkbuddy/common/widgets/barkbuddy_icons.dart';
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
 import 'package:barkbuddy/home/home_screen.dart';
-import 'package:barkbuddy/home/services/notification/notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/login/bloc/login_bloc.dart';
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:barkbuddy/login/services/users/user_service.dart';
@@ -108,7 +108,7 @@ class LoginBody extends StatelessWidget {
                   onPressed: () =>
                       context.read<LoginBloc>().add(const LoginSubmitted()),
                   height: 60,
-                  icon: const Icon(CustomIcons.google),
+                  icon: const Icon(BarkbuddyIcons.google),
                   label: Text(
                     "Login with Google",
                     style: Theme.of(context).textTheme.labelLarge!.apply(

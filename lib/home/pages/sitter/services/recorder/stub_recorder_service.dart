@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
-import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
 import 'package:flutter/foundation.dart';
 
 class StubRecorderService implements RecorderService {

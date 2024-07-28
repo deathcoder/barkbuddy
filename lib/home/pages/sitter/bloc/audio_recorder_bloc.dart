@@ -3,10 +3,10 @@ import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
-import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
-import 'package:barkbuddy/home/services/notification/notification_service.dart';
-import 'package:barkbuddy/home/services/recorder/recorder_service.dart';
-import 'package:barkbuddy/home/services/tts/text_to_speech_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';

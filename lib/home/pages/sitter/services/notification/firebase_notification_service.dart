@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:barkbuddy/common/log/logger.dart';
-import 'package:barkbuddy/home/services/notification/notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;

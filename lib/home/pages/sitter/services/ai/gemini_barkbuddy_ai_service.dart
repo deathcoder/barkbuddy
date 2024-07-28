@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
-import 'package:barkbuddy/home/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:pcmtowave/pcmtowave.dart';
 

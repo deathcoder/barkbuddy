@@ -1,13 +1,13 @@
 import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/common/widgets/material_filled_button.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
-import 'package:barkbuddy/home/bloc/audio_recorder_bloc.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
+import 'package:barkbuddy/home/pages/sitter/bloc/audio_recorder_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AudioRecorderPage extends StatelessWidget {
-  const AudioRecorderPage({super.key});
+class AiSitterPage extends StatelessWidget {
+  const AiSitterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
