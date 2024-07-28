@@ -5,6 +5,7 @@ import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class FirebaseNotificationService implements NotificationService {
@@ -12,6 +13,8 @@ class FirebaseNotificationService implements NotificationService {
   static const String baseUrl = 'https://notification-5wt6kruwzq-uc.a.run.app';
 
   late StreamSubscription<RemoteMessage> onMessageSubscription;
+
+  FirebaseNotificationService();
 
   @override
   Future<void> initialize() async {
@@ -33,7 +36,7 @@ class FirebaseNotificationService implements NotificationService {
         return fcmToken;
       }
     } catch (error) {
-      debugPrint("error initializing FirebaseMessaging: $error");
+      logger.error("error initializing FirebaseMessaging: $error");
     }
     return null;
   }
@@ -47,34 +50,40 @@ class FirebaseNotificationService implements NotificationService {
   // todo send notification could be refactored it's duplicated at the moment
   @override
   Future<void> sendNotification(
-      {required String title, required String body}) async {
-    // call server api
-    // TODO
-    logger.log("sending notification title [$title], body [$body] to: TODO");
+      {required String title,
+      required String body,
+      required String fcmToken}) async {
+    Fluttertoast.showToast(
+      msg: body,
+      toastLength: Toast.LENGTH_LONG,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 10,
+      webPosition: "center",
+      // `left`, `center` or `right` https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation
+      webBgColor: "#504338",
+    );
 
-      try {
-        final response = await http.post(
-          Uri.parse(baseUrl),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            "title": title,
-            "body": body,
-            // todo token should be dynamic, but can't retrieve it with function, since browser is sending the notification but the phone needs to receive it so we dont need browser token but the phone one
-            "token": "cy1RFneFSZK2KtgA8QLWiR:APA91bG2cI5tddjNpS6DUNNqgIIqJ-lOv0aIeJuS1MoLYzgz2Fd4cBB_C1jITmMt_YQhgLfZgjrCLzpCIsU6WVeHCFqQUNIAuSCaO7mITw-9hCN1_B9A7UU-i1dH4HU3ZMdpObYzIYY9",
-          }),
-        );
+    try {
+      final response = await http.post(
+        Uri.parse(baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          "title": title,
+          "body": body,
+          "token": fcmToken,
+        }),
+      );
 
-        if (response.statusCode == 200) {
-          logger.log("Notification was sent successfully");
-        } else {
-          throw Exception(
-              'Failed to send notification: statusCode ${response.statusCode}');
-        }
-      } catch (error) {
+      if (response.statusCode == 200) {
+        logger.log("Notification was sent successfully");
+      } else {
         throw Exception(
-            'Failed to send notification: statusCode $error');
+            'Failed to send notification: statusCode ${response.statusCode}');
       }
+    } catch (error) {
+      throw Exception('Failed to send notification: statusCode $error');
+    }
   }
 }

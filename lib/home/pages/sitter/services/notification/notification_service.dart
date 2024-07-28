@@ -3,5 +3,5 @@ abstract interface class NotificationService {
 
   Future<void> initialize();
 
-  Future<void> sendNotification({required String title, required String body});
+  Future<void> sendNotification({required String title, required String body, required String fcmToken});
 }

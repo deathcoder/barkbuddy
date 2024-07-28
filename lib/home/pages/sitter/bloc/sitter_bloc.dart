@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
+import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
-import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:bloc/bloc.dart';
@@ -22,7 +22,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
 
   final RecorderService audioRecorderService;
   final BarkbuddyAiService barkbuddyAiService;
-  final NotificationService notificationService;
+  final DevicesManager devicesManager;
   final TextToSpeechService textToSpeechService;
 
   late Timer volumeUpdateTimer;
@@ -38,7 +38,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   SitterBloc({
     required this.audioRecorderService,
     required this.barkbuddyAiService,
-    required this.notificationService,
+    required this.devicesManager,
     required this.textToSpeechService,
     this.isRecording = false,
     this.minAmplitude = -45.0,
@@ -138,7 +138,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     }
     if (event.action.action == 'action_5' && event.action.message != null) {
       // todo make gemini generate title too
-      await notificationService.sendNotification(title: "Barking detected!", body: event.action.message!);
+      await devicesManager.sendNotification(title: "Barking detected!", body: event.action.message!);
     }
 
     if (event.action.action == 'action_2' && event.action.message != null) {
@@ -177,7 +177,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   }
 
   Future<void> onDebugBark(DebugBark event, Emitter<AbstractSitterState> emit) async {
-    await notificationService.sendNotification(title: "Barking detected!", body: "bark!");
+    await devicesManager.sendNotification(title: "Barking detected!", body: "bark!");
     await audioRecorderService.stopRecording();
   }
 

@@ -2,13 +2,13 @@ import 'package:barkbuddy/app.dart';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/firebase_options.dart';
+import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
 import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/firebase_notification_service.dart';
-import 'package:barkbuddy/home/pages/sitter/services/notification/local_notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/audio_recorder_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
@@ -20,7 +20,6 @@ import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:barkbuddy/login/services/users/user_service.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart' hide Logger;
@@ -71,9 +70,7 @@ Future<void> main() async {
               apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
     ),
     Provider<NotificationService>(
-      create: (context) => Settings.stub.notifications || kIsWeb
-          ? LocalNotificationService()
-          : FirebaseNotificationService(),
+      create: (context) => FirebaseNotificationService(),
     ),
     Provider<TextToSpeechService>(
       create: (context) => Settings.stub.textToSpeech
@@ -84,8 +81,11 @@ Future<void> main() async {
         create: (context) => AuthenticationService()),
     Provider<UserService>(create: (context) => UserService()),
     Provider<DevicesService>(
-        create: (context) => DevicesService(
-              userService: context.read<UserService>(),
+        create: (context) =>
+            DevicesService(userService: context.read<UserService>())),
+    Provider<DevicesManager>(
+        create: (context) => DevicesManager(
+              devicesService: context.read<DevicesService>(),
               notificationService: context.read<NotificationService>(),
             )),
   ], child: const App()));
