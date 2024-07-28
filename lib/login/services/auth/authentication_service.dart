@@ -1,36 +1,41 @@
 import 'dart:async';
 
 import 'package:barkbuddy/common/log/logger.dart';
+import 'package:barkbuddy/login/models/barkbuddy_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'authentication_state.dart';
 
 enum AuthenticationStatus { unknown, authenticated, unauthenticated }
 
 class AuthenticationService {
   static final logger = Logger(name: (AuthenticationService).toString());
 
-  final controller = StreamController<AuthenticationStatus>();
-  final googleSignIn = GoogleSignIn(clientId: "669358768813-1islsb4s51asot3c868dbl72k8s1485u.apps.googleusercontent.com");
-  StreamSubscription<User?>? authSub;
+  final googleSignIn = GoogleSignIn(
+      clientId:
+          "669358768813-1islsb4s51asot3c868dbl72k8s1485u.apps.googleusercontent.com");
 
-  Stream<AuthenticationStatus> get status async* {
-    authSub?.cancel();
-    authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
-      logger.info("auth state changed $user");
-      if (user != null) {
-        controller.add(AuthenticationStatus.authenticated);
+  Stream<AuthenticationState> get stateStream {
+    return FirebaseAuth.instance.authStateChanges().map((firebaseUser) {
+      logger.info("auth state changed $firebaseUser");
+      if (firebaseUser != null) {
+        return AuthenticationState(
+          authenticationStatus: AuthenticationStatus.authenticated,
+          user: BarkbuddyUser.fromFirebaseUser(firebaseUser),
+        );
       } else {
-        controller.add(AuthenticationStatus.unauthenticated);
+        return const AuthenticationState(
+          authenticationStatus: AuthenticationStatus.unauthenticated,
+        );
       }
     });
-
-    yield* controller.stream;
   }
 
   Future<UserCredential> signInWithGoogle() async {
     try {
-      if(kIsWeb) {
+      if (kIsWeb) {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
         //googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
@@ -42,7 +47,7 @@ class AuthenticationService {
 
         // Obtain the auth details from the request
         final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+            await googleUser?.authentication;
 
         // Create a new credential
         final credential = GoogleAuthProvider.credential(
@@ -52,7 +57,7 @@ class AuthenticationService {
 
         // Once signed in, return UserCredential
         var userCredential =
-        await FirebaseAuth.instance.signInWithCredential(credential);
+            await FirebaseAuth.instance.signInWithCredential(credential);
         return userCredential;
       }
     } catch (error) {
@@ -70,6 +75,4 @@ class AuthenticationService {
       return false;
     }
   }
-
-  void dispose() => controller.close();
 }

@@ -9,6 +9,7 @@ import 'package:barkbuddy/home/home_screen.dart';
 import 'package:barkbuddy/home/services/notification/notification_service.dart';
 import 'package:barkbuddy/login/bloc/login_bloc.dart';
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
+import 'package:barkbuddy/login/services/users/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen>
     return Scaffold(
       body: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc(
+            userService: RepositoryProvider.of<UserService>(context),
             authenticationService:
                 RepositoryProvider.of<AuthenticationService>(context))
           ..add(const Initialize()),
