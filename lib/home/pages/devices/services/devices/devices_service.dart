@@ -21,7 +21,7 @@ class DevicesService {
 
   DevicesService({required this.userService, required this.notificationService});
 
-  Future<Stream<UserDevices>> getDevices(String id) async {
+  Future<Stream<UserDevices>> streamDevices() async {
     var user = await userService.getUser();
     if(user == null) {
       throw "Users must be logged in to see their devices";
@@ -54,5 +54,18 @@ class DevicesService {
         .collection(Collections.users.devices.collection)
         .doc(userDevice.uid)
         .set(userDevice.toJson());
+  }
+
+  Future<void> deleteDevice({required String deviceId}) async {
+    var user = await userService.getUser();
+    if(user == null) {
+      throw "Users must be logged in to delete their devices";
+    }
+
+    await db.collection(Collections.users.collection)
+        .doc(user.uid)
+        .collection(Collections.users.devices.collection)
+        .doc(deviceId)
+        .delete();
   }
 }

@@ -5,8 +5,8 @@ sealed class LoginEvent extends Equatable {
 }
 
 
-final class Initialize extends LoginEvent {
-  const Initialize();
+final class InitializeLogin extends LoginEvent {
+  const InitializeLogin();
 
   @override
   List<Object> get props => [];

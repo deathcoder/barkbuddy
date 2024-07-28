@@ -23,5 +23,5 @@ final class SitterState extends AbstractSitterState {
   bool get hasData => volume != uninitializedVolume;
 
   @override
-  List<Object?> get props => [volume, actions, actionToExecute];
+  List<Object?> get props => [volume, actions, actionToExecute, noCache];
 }

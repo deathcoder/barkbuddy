@@ -47,7 +47,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     this.volumeUpdateIntervalMillis = 50,
     this.actionsPlayerIntervalMillis = 3000,
   }) : super(SitterState()) {
-    on<InitializeSitter>(onInitialize);
+    on<InitializeSitter>(onInitializeSitter);
     on<UpdateVolume>(onUpdateVolume);
     on<RecordNoise>(onRecordNoise);
     on<ExecuteAction>(onExecuteAction);
@@ -56,7 +56,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     audioRecorderService.audioRecordedCallback = audioRecordedCallback;
   }
 
-  Future<void> onInitialize(InitializeSitter event, Emitter<AbstractSitterState> emit) async {
+  Future<void> onInitializeSitter(InitializeSitter event, Emitter<AbstractSitterState> emit) async {
     await audioRecorderService.initialize();
     // start timer
     volumeUpdateTimer =

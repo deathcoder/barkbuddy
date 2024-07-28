@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen>
             userService: RepositoryProvider.of<UserService>(context),
             authenticationService:
                 RepositoryProvider.of<AuthenticationService>(context))
-          ..add(const Initialize()),
+          ..add(const InitializeLogin()),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: SafeArea(

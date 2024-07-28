@@ -21,7 +21,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     required this.authenticationService,
     required this.userService,
   })  : super(const LoginState()) {
-    on<Initialize>(onInitialize);
+    on<InitializeLogin>(onInitializeLogin);
     on<LoginSubmitted>(onLoginSubmitted);
     on<AuthChanged>(onAuthChanged);
   }
@@ -38,7 +38,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  Future<void> onInitialize(Initialize event, Emitter<LoginState> emit) async {
+  Future<void> onInitializeLogin(InitializeLogin event, Emitter<LoginState> emit) async {
     await authSub?.cancel();
     authSub = authenticationService.stateStream.listen((authState){
       add(AuthChanged(authenticationState: authState));
