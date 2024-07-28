@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/devices/models/user_device.dart';
-import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
+import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 

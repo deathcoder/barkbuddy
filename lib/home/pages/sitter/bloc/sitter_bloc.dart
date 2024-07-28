@@ -4,16 +4,15 @@ import 'dart:typed_data';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
-import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
-import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 part 'sitter_event.dart';
-
 part 'sitter_state.dart';
 
 class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
@@ -21,9 +20,9 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   static const double amplitudeThreshold = -30;
 
   final RecorderService audioRecorderService;
-  final BarkbuddyAiService barkbuddyAiService;
+  final BarkbuddyAiManager barkbuddyAiManager;
   final DevicesManager devicesManager;
-  final TextToSpeechService textToSpeechService;
+  final BarkbuddyTtsManager barkbuddyTtsManager;
 
   late Timer volumeUpdateTimer;
   late Timer detectNoiseTimer;
@@ -37,9 +36,9 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
 
   SitterBloc({
     required this.audioRecorderService,
-    required this.barkbuddyAiService,
+    required this.barkbuddyAiManager,
     required this.devicesManager,
-    required this.textToSpeechService,
+    required this.barkbuddyTtsManager,
     this.isRecording = false,
     this.minAmplitude = -45.0,
     this.recordSeconds = 10,
@@ -142,7 +141,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     }
 
     if (event.action.action == 'action_2' && event.action.message != null) {
-      AudioPlayer audioPlayer = await textToSpeechService.synthesize(message: event.action.message!);
+      AudioPlayer audioPlayer = await barkbuddyTtsManager.synthesize(message: event.action.message!);
       await audioPlayer.play();
     }
     logger.debug("starting 10s action execution sleep");
@@ -155,7 +154,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
 
   Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
     logger.info("Received audio recorded event with id: $audioId and audio size: ${audio.length}");
-    var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(audio);
+    var barkingResponse = await barkbuddyAiManager.detectBarkingAndInferActionsFrom(audio: audio);
     if (barkingResponse.barking) {
       logger.info("Barking detected");
       add(AddActions(actions: barkingResponse.actions));

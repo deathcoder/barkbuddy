@@ -6,7 +6,10 @@ import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dar
 
 class StubBarkbuddyAiService implements BarkbuddyAiService {
   @override
-  Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom(Uint8List audio) async {
+  Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom({
+    required Uint8List audio,
+    required String apiKey,
+  }) async {
     return stubResponse();
   }
 

@@ -1,5 +1,5 @@
 import 'package:barkbuddy/common/log/logger.dart';
-import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
+import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 
 class DevicesManager {

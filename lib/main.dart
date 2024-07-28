@@ -3,8 +3,11 @@ import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/common/settings.dart';
 import 'package:barkbuddy/firebase_options.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
-import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
+import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
+import 'package:barkbuddy/home/pages/services/services/services_service.dart';
 import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
@@ -66,16 +69,14 @@ Future<void> main() async {
       // todo rotate leaked api key
       create: (context) => Settings.stub.gemini
           ? StubBarkbuddyAiService()
-          : GeminiBarkbuddyAiService(
-              apiKey: "AIzaSyAw364EonJRQC7GteimpNJgiUr_dM8HOwM "),
+          : GeminiBarkbuddyAiService(),
     ),
     Provider<NotificationService>(
       create: (context) => FirebaseNotificationService(),
     ),
     Provider<TextToSpeechService>(
-      create: (context) => Settings.stub.textToSpeech
-          ? StubTtsService()
-          : GoogleTtsService(projectId: 'chatterbox-73d26'),
+      create: (context) =>
+          Settings.stub.textToSpeech ? StubTtsService() : GoogleTtsService(),
     ),
     Provider<AuthenticationService>(
         create: (context) => AuthenticationService()),
@@ -87,6 +88,19 @@ Future<void> main() async {
         create: (context) => DevicesManager(
               devicesService: context.read<DevicesService>(),
               notificationService: context.read<NotificationService>(),
+            )),
+    Provider<ServicesService>(
+        create: (context) =>
+            ServicesService(userService: context.read<UserService>())),
+    Provider<BarkbuddyAiManager>(
+        create: (context) => BarkbuddyAiManager(
+              servicesService: context.read<ServicesService>(),
+              barkbuddyAiService: context.read<BarkbuddyAiService>(),
+            )),
+    Provider<BarkbuddyTtsManager>(
+        create: (context) => BarkbuddyTtsManager(
+              servicesService: context.read<ServicesService>(),
+              textToSpeechService: context.read<TextToSpeechService>(),
             )),
   ], child: const App()));
 }

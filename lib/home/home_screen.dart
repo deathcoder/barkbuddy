@@ -2,13 +2,16 @@ import 'package:barkbuddy/home/navigation/destination.dart';
 import 'package:barkbuddy/home/navigation/navigation_scaffold.dart';
 import 'package:barkbuddy/home/pages/devices/bloc/devices_bloc.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
-import 'package:barkbuddy/home/pages/devices/services/devices/devices_service.dart';
+import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
+import 'package:barkbuddy/home/pages/services/services/services_service.dart';
 import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
-import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
+import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
-import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'pages/services/bloc/services_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
       providers: [
         BlocProvider<SitterBloc>(
           create: (context) => SitterBloc(
-            textToSpeechService: context.read<TextToSpeechService>(),
+            barkbuddyTtsManager: context.read<BarkbuddyTtsManager>(),
             audioRecorderService: context.read<RecorderService>(),
-            barkbuddyAiService: context.read<BarkbuddyAiService>(),
+            barkbuddyAiManager: context.read<BarkbuddyAiManager>(),
             devicesManager: context.read<DevicesManager>(),
           )..add(InitializeSitter()),
         ),
@@ -42,6 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 devicesManager: context.read<DevicesManager>()
               )
                 ..add(const InitializeDevices()),
+        ),
+        BlocProvider<ServicesBloc>(
+          create: (context) => ServicesBloc(servicesService: context.read<ServicesService>())..add(InitializeServices()),
         ),
       ],
       child: NavigationScaffold(

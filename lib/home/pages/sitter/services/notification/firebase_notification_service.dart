@@ -21,6 +21,7 @@ class FirebaseNotificationService implements NotificationService {
     if (!kIsWeb) {
       await firebaseMessaging.requestPermission();
       onMessageSubscription = FirebaseMessaging.onMessage.listen((data) {
+        // todo should show a local notification when the app is open
         logger.info("received notification");
       });
     }
@@ -47,7 +48,6 @@ class FirebaseNotificationService implements NotificationService {
     await onMessageSubscription.cancel();
   }
 
-  // todo send notification could be refactored it's duplicated at the moment
   @override
   Future<void> sendNotification(
       {required String title,

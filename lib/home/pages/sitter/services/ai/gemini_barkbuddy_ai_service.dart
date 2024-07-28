@@ -9,6 +9,8 @@ import 'package:pcmtowave/pcmtowave.dart';
 class GeminiBarkbuddyAiService implements BarkbuddyAiService {
   static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 
+  static const String model = "gemini-1.5-flash-latest";
+
   static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.
 
@@ -63,13 +65,14 @@ Example Output:
 }  
 """;
 
-  final GenerativeModel model;
-
-  GeminiBarkbuddyAiService({required String apiKey, String model = "gemini-1.5-flash-latest"})
-      : model = GenerativeModel(model: model, apiKey: apiKey);
+  GeminiBarkbuddyAiService();
 
   @override
-  Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom(Uint8List audio) async {
+  Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom({
+    required Uint8List audio,
+    required String apiKey,
+  }) async {
+    var generativeModel = GenerativeModel(model: model, apiKey: apiKey);
 
     final prompt = [
       Content.multi([
@@ -78,16 +81,20 @@ Example Output:
       ])
     ];
 
-    GenerateContentResponse generateContentResponse = await model.generateContent(
-        prompt,
-        generationConfig: GenerationConfig(responseMimeType: "application/json"));
+    GenerateContentResponse generateContentResponse =
+        await generativeModel.generateContent(prompt,
+            generationConfig:
+                GenerationConfig(responseMimeType: "application/json"));
 
-    if(generateContentResponse.text != null){
+    if (generateContentResponse.text != null) {
       logger.info("Computer says: ${generateContentResponse.text}");
       return BarkbuddyAiResponse.fromJsonString(generateContentResponse.text!);
     } else {
       logger.warn("Computer says no :(");
-      return BarkbuddyAiResponse(barking: false, stressLevel: "none", audioDescription: "audio processing error");
+      return BarkbuddyAiResponse(
+          barking: false,
+          stressLevel: "none",
+          audioDescription: "audio processing error");
     }
   }
 }

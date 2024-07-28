@@ -45,7 +45,7 @@ class DevicesPage extends StatelessWidget {
                   'To receive notifications, register your device by opening the app on your mobile phone.',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-              const SizedBox(height: 10),
+              VerticalSpace.small(),
               ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

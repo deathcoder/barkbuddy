@@ -1,27 +1,22 @@
 import 'dart:convert';
 
-import 'package:barkbuddy/home/pages/sitter/services/tts/source.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/sources/source.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:just_audio/just_audio.dart';
 
 class GoogleTtsService implements TextToSpeechService {
-  static const String baseUrl = 'https://texttospeech.googleapis.com/v1/text:synthesize';
+  static const String baseUrl =
+      'https://texttospeech.googleapis.com/v1/text:synthesize';
 
-  final String projectId;
-
-  GoogleTtsService({required this.projectId});
-
-  Future<String> _getAccessToken() async {
-    // TODO This is a placeholder. You'll need to implement a secure way to get the access token.
-    // Consider using a backend service or a secure storage solution.
-    return 'YOUR_ACCESS_TOKEN_HERE';
-  }
+  GoogleTtsService();
 
   @override
-  Future<AudioPlayer> synthesize({required String message}) async {
-    final accessToken = await _getAccessToken();
-
+  Future<AudioPlayer> synthesize({
+    required String message,
+    required String accessToken,
+    required String projectId,
+  }) async {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: {
@@ -50,7 +45,8 @@ class GoogleTtsService implements TextToSpeechService {
       await player.setAudioSource(MP3StreamAudioSource(audioBytes));
       return player;
     } else {
-      throw Exception('Failed to synthesize speech: statusCode ${response.statusCode}');
+      throw Exception(
+          'Failed to synthesize speech: statusCode ${response.statusCode}');
     }
   }
 }
