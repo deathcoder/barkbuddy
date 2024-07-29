@@ -35,11 +35,23 @@ class ServicesPage extends StatelessWidget {
                 'Ai Service Registration',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               ),
-              VerticalSpace.small(),
-              ElevatedButton(
-                onPressed: () => _showRegisterTtsDialog(context),
-                child: const Text('Register Google Text to Speech Service'),
-              ),
+              if (!state.userServices.containsGeminiService) ...[
+                VerticalSpace.small(),
+                ElevatedButton(
+                  onPressed: () => context
+                      .read<ServicesBloc>()
+                      .add(const RegisterGeminiService(enabled: true)),
+                  child: const Text('Register Gemini Service'),
+                ),
+              ],
+              if (!state.userServices.containsGoogleTextToSpeechService) ...[
+                VerticalSpace.small(),
+                ElevatedButton(
+                  onPressed: () =>
+                      _showRegisterTtsDialog(context: context, enabled: true),
+                  child: const Text('Register Google Text to Speech Service'),
+                ),
+              ],
               VerticalSpace.small(),
               ListView.builder(
                 shrinkWrap: true,
@@ -48,54 +60,12 @@ class ServicesPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final service = registeredServices[index];
                   return Card(
-                    child: ListTile(
-                      leading: switch (service) {
-                        GeminiUserService() => Image.asset(
-                            Assets.geminiIcon,
-                            height: IconTheme.of(context).size,
-                            width: IconTheme.of(context).size,
-                          ),
-                        GoogleTextToSpeechUserService() => const Icon(
-                            Icons.spatial_audio_off_rounded,
-                            color: Colors.grey,
-                          ),
-                      },
-                      title: Text(switch (service) {
-                        GeminiUserService() => 'Gemini Service',
-                        GoogleTextToSpeechUserService() =>
-                          'Google Text To Speech Service'
-                      }),
-                      subtitle: switch (service) {
-                        GeminiUserService(apiKey: var apiKey) =>
-                          Text('Api Key: ${apiKey.substring(0, 10)}...'),
-                        GoogleTextToSpeechUserService(
-                          projectId: var projectId,
-                          accessToken: var accessToken
-                        ) =>
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              VerticalSpace.small(),
-                              Text('Project Id: $projectId'),
-                              VerticalSpace.micro(),
-                              Text(
-                                  'Access Token: ${accessToken.substring(0, 10)}...'),
-                            ],
-                          )
-                      },
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete),
-                        onPressed: () {
-                          context.read<ServicesBloc>().add(DeleteService(
-                                  serviceId: switch (service) {
-                                GeminiUserService(uid: var uid) => uid,
-                                GoogleTextToSpeechUserService(uid: var uid) =>
-                                  uid,
-                              }));
-                        },
-                      ),
-                    ),
+                    child: switch (service) {
+                      GeminiUserService() =>
+                        _buildGeminiServiceTile(context, service),
+                      GoogleTextToSpeechUserService() =>
+                        _buildGoogleTtsServiceTile(context, service),
+                    },
                   );
                 },
               ),
@@ -106,49 +76,90 @@ class ServicesPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showRegisterGeminiDialog(BuildContext context) async {
-    final TextEditingController apiKeyController = TextEditingController();
-
-    if (context.mounted) {
-      return showDialog(
-        context: context,
-        builder: (childContext) {
-          return AlertDialog(
-            title: const Text('Register Gemini Service'),
-            content: TextField(
-              controller: apiKeyController,
-              decoration: const InputDecoration(
-                hintText: 'AIza...',
-                labelText: 'Api Key',
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(childContext).pop(),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (apiKeyController.text.isNotEmpty) {
-                    context.read<ServicesBloc>().add(
-                        RegisterGeminiService(apiKey: apiKeyController.text));
-                    Navigator.of(childContext).pop();
-                  }
-                },
-                child: const Text('Register'),
-              ),
-            ],
-          );
+  Widget _buildGeminiServiceTile(
+      BuildContext context, GeminiUserService service) {
+    return ListTile(
+      leading: Image.asset(
+        Assets.geminiIcon,
+        height: IconTheme.of(context).size,
+        width: IconTheme.of(context).size,
+      ),
+      title: const Text('Gemini Service'),
+      trailing: Switch(
+        value: service.enabled,
+        thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return const Icon(Icons.check);
+            }
+            return const Icon(Icons.close);
+          },
+        ),
+        activeColor: Theme.of(context).colorScheme.primaryContainer,
+        onChanged: (state) {
+          context
+              .read<ServicesBloc>()
+              .add(RegisterGeminiService(enabled: state));
         },
-      );
-    }
+      ),
+    );
   }
 
-  Future<void> _showRegisterTtsDialog(BuildContext context) async {
-    final TextEditingController accessTokenController = TextEditingController();
+  Widget _buildGoogleTtsServiceTile(
+      BuildContext context, GoogleTextToSpeechUserService service) {
+    return ListTile(
+      leading: const Icon(
+        Icons.spatial_audio_off_rounded,
+        color: Colors.grey,
+      ),
+      title: const Text('Google Text To Speech Service'),
+      subtitle: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          VerticalSpace.small(),
+          Text('Project Id: ${service.projectId}'),
+          VerticalSpace.micro(),
+          Text('Access Token: ${service.accessToken.substring(0, 10)}...'),
+        ],
+      ),
+      onTap: () => _showRegisterTtsDialog(
+        context: context,
+        enabled: service.enabled,
+        projectId: service.projectId,
+        accessToken: service.accessToken,
+      ),
+      trailing: Switch(
+        value: service.enabled,
+        thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return const Icon(Icons.check);
+            }
+            return const Icon(Icons.close);
+          },
+        ),
+        activeColor: Theme.of(context).colorScheme.primaryContainer,
+        onChanged: (state) {
+          context.read<ServicesBloc>().add(RegisterGoogleTtsService(
+              projectId: service.projectId,
+              accessToken: service.accessToken,
+              enabled: state));
+        },
+      ),
+    );
+  }
+
+  Future<void> _showRegisterTtsDialog({
+    required BuildContext context,
+    required bool enabled,
+    String? projectId,
+    String? accessToken,
+  }) async {
+    final TextEditingController accessTokenController = TextEditingController(text: accessToken);
 
     final TextEditingController projectIdController =
-        TextEditingController(text: 'chatterbox-73d26');
+        TextEditingController(text: projectId ?? 'chatterbox-73d26');
 
     if (context.mounted) {
       return showDialog(
@@ -184,10 +195,12 @@ class ServicesPage extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   if (accessTokenController.text.isNotEmpty &&
+                      accessTokenController.text.length > 10 &&
                       projectIdController.text.isNotEmpty) {
                     context.read<ServicesBloc>().add(RegisterGoogleTtsService(
                           projectId: projectIdController.text,
                           accessToken: accessTokenController.text,
+                          enabled: enabled,
                         ));
                     Navigator.of(childContext).pop();
                   }

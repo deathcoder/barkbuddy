@@ -70,7 +70,6 @@ Example Output:
   @override
   Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom({
     required Uint8List audio,
-    required String apiKey,
   }) async {
 
     final prompt = [

@@ -8,7 +8,6 @@ class StubBarkbuddyAiService implements BarkbuddyAiService {
   @override
   Future<BarkbuddyAiResponse> detectBarkingAndInferActionsFrom({
     required Uint8List audio,
-    required String apiKey,
   }) async {
     return stubResponse();
   }

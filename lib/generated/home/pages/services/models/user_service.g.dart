@@ -8,14 +8,14 @@ part of '../../../../../home/pages/services/models/user_service.dart';
 
 GeminiUserService _$GeminiUserServiceFromJson(Map<String, dynamic> json) =>
     GeminiUserService(
-      apiKey: json['apiKey'] as String,
+      enabled: json['enabled'] as bool,
       uid: json['uid'] as String? ?? Services.gemini,
     );
 
 Map<String, dynamic> _$GeminiUserServiceToJson(GeminiUserService instance) =>
     <String, dynamic>{
       'uid': instance.uid,
-      'apiKey': instance.apiKey,
+      'enabled': instance.enabled,
     };
 
 GoogleTextToSpeechUserService _$GoogleTextToSpeechUserServiceFromJson(
@@ -23,6 +23,7 @@ GoogleTextToSpeechUserService _$GoogleTextToSpeechUserServiceFromJson(
     GoogleTextToSpeechUserService(
       projectId: json['projectId'] as String,
       accessToken: json['accessToken'] as String,
+      enabled: json['enabled'] as bool,
       uid: json['uid'] as String? ?? Services.googleTts,
     );
 
@@ -32,4 +33,5 @@ Map<String, dynamic> _$GoogleTextToSpeechUserServiceToJson(
       'uid': instance.uid,
       'projectId': instance.projectId,
       'accessToken': instance.accessToken,
+      'enabled': instance.enabled,
     };

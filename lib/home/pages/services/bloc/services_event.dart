@@ -18,26 +18,28 @@ final class ServicesChanged extends ServicesEvent {
   List<Object> get props => [userServices];
 }
 
-
 class RegisterGeminiService extends ServicesEvent {
-  final String apiKey;
+  final bool enabled;
 
-
-  const RegisterGeminiService({required this.apiKey});
+  const RegisterGeminiService({required this.enabled});
 
   @override
-  List<Object?> get props => [apiKey];
+  List<Object?> get props => [enabled];
 }
 
 class RegisterGoogleTtsService extends ServicesEvent {
   final String projectId;
   final String accessToken;
+  final bool enabled;
 
-
-  const RegisterGoogleTtsService({required this.projectId, required this.accessToken});
+  const RegisterGoogleTtsService({
+    required this.projectId,
+    required this.accessToken,
+    required this.enabled,
+  });
 
   @override
-  List<Object?> get props => [projectId, accessToken];
+  List<Object?> get props => [projectId, accessToken, enabled];
 }
 
 class DeleteService extends ServicesEvent {

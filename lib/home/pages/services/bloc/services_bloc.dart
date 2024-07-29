@@ -6,6 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
 part 'services_event.dart';
+
 part 'services_state.dart';
 
 class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
@@ -13,7 +14,8 @@ class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
 
   StreamSubscription<UserServices>? servicesSub;
 
-  ServicesBloc({required this.servicesService}) : super(ServicesState(userServices: const [])) {
+  ServicesBloc({required this.servicesService})
+      : super(ServicesState(userServices: const [])) {
     on<InitializeServices>(onInitializeServices);
     on<RegisterGeminiService>(onRegisterGeminiService);
     on<RegisterGoogleTtsService>(onRegisterGoogleTtsService);
@@ -21,7 +23,8 @@ class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
     on<ServicesChanged>(onServicesChanged);
   }
 
-  Future<void> onInitializeServices(InitializeServices event, Emitter<AbstractServicesState> emit) async {
+  Future<void> onInitializeServices(
+      InitializeServices event, Emitter<AbstractServicesState> emit) async {
     await servicesSub?.cancel();
     var stream = await servicesService.streamServices();
     servicesSub = stream.listen((services) {
@@ -29,19 +32,27 @@ class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
     });
   }
 
-  Future<void> onRegisterGeminiService(RegisterGeminiService event, Emitter<AbstractServicesState> emit) async {
-    await servicesService.saveGeminiUserService(apiKey: event.apiKey);
+  Future<void> onRegisterGeminiService(
+      RegisterGeminiService event, Emitter<AbstractServicesState> emit) async {
+    await servicesService.saveGeminiUserService(enabled: event.enabled);
   }
 
-  Future<void> onRegisterGoogleTtsService(RegisterGoogleTtsService event, Emitter<AbstractServicesState> emit) async {
-    await servicesService.saveGoogleTtsUserService(projectId: event.projectId, accessToken: event.accessToken);
+  Future<void> onRegisterGoogleTtsService(RegisterGoogleTtsService event,
+      Emitter<AbstractServicesState> emit) async {
+    await servicesService.saveGoogleTtsUserService(
+      projectId: event.projectId,
+      accessToken: event.accessToken,
+      enabled: event.enabled,
+    );
   }
 
-  Future<void> onDeleteService(DeleteService event, Emitter<AbstractServicesState> emit) async {
+  Future<void> onDeleteService(
+      DeleteService event, Emitter<AbstractServicesState> emit) async {
     await servicesService.deleteService(serviceId: event.serviceId);
   }
 
-  void onServicesChanged(ServicesChanged event, Emitter<AbstractServicesState> emit) {
+  void onServicesChanged(
+      ServicesChanged event, Emitter<AbstractServicesState> emit) {
     emit(ServicesState(userServices: event.userServices));
   }
 }

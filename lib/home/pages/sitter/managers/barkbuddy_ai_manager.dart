@@ -22,7 +22,6 @@ class BarkbuddyAiManager {
 
     return await barkbuddyAiService.detectBarkingAndInferActionsFrom(
       audio: audio,
-      apiKey: geminiUserService.apiKey,
     );
   }
 }

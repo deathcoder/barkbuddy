@@ -8,9 +8,9 @@ sealed class UserService {}
 @JsonSerializable()
 class GeminiUserService extends UserService {
   final String uid;
-  final String apiKey;
+  final bool enabled;
 
-  GeminiUserService({required this.apiKey, this.uid = Services.gemini});
+  GeminiUserService({required this.enabled, this.uid = Services.gemini});
 
   factory GeminiUserService.fromJson(Map<String, dynamic> json) =>
       _$GeminiUserServiceFromJson(json);
@@ -23,10 +23,12 @@ class GoogleTextToSpeechUserService extends UserService {
   final String uid;
   final String projectId;
   final String accessToken;
+  final bool enabled;
 
   GoogleTextToSpeechUserService({
     required this.projectId,
     required this.accessToken,
+    required this.enabled,
     this.uid = Services.googleTts,
   });
 
@@ -37,3 +39,15 @@ class GoogleTextToSpeechUserService extends UserService {
 }
 
 typedef UserServices = Iterable<UserService>;
+
+extension UserServicesUtils on UserServices {
+  bool get containsGeminiService => any((service) => switch(service) {
+    GeminiUserService() => true,
+    _ => false,
+  });
+
+  bool get containsGoogleTextToSpeechService => any((service) => switch(service) {
+    GoogleTextToSpeechUserService() => true,
+    _ => false,
+  });
+}
