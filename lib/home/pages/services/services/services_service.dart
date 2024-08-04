@@ -34,12 +34,12 @@ class ServicesService {
                 Services.gemini => GeminiUserService.fromJson(doc.data()),
                 Services.googleTts =>
                   GoogleTextToSpeechUserService.fromJson(doc.data()),
+                Services.recorder => RecorderUserService.fromJson(doc.data()),
                 _ => throw "Unsupported service $uid",
               };
             }));
   }
 
-  // todo this service is not needed anymore
   Future<GeminiUserService?> getGeminiUserService() async {
     var user = await userService.getUser();
     if (user == null) {
@@ -54,6 +54,24 @@ class ServicesService {
 
     if (serviceSnapshot.exists) {
       return GeminiUserService.fromJson(serviceSnapshot.data()!);
+    }
+    return null;
+  }
+
+  Future<RecorderUserService?> getRecorderUserService() async {
+    var user = await userService.getUser();
+    if (user == null) {
+      throw "Users must be logged in to see their services";
+    }
+    var serviceSnapshot = await db
+        .collection(Collections.users.collection)
+        .doc(user.uid)
+        .collection(Collections.users.services.collection)
+        .doc(Collections.users.services.recorderId)
+        .get();
+
+    if (serviceSnapshot.exists) {
+      return RecorderUserService.fromJson(serviceSnapshot.data()!);
     }
     return null;
   }
@@ -90,6 +108,22 @@ class ServicesService {
         .collection(Collections.users.services.collection)
         .doc(gemini.uid)
         .set(gemini.toJson());
+  }
+
+  Future<void> saveRecorderUserService({required bool enabled}) async {
+    var user = await userService.getUser();
+    if (user == null) {
+      throw "Users must be logged in to save their services";
+    }
+
+    var recorder = RecorderUserService(enabled: enabled);
+
+    await db
+        .collection(Collections.users.collection)
+        .doc(user.uid)
+        .collection(Collections.users.services.collection)
+        .doc(recorder.uid)
+        .set(recorder.toJson());
   }
 
   Future<void> saveGoogleTtsUserService({

@@ -4,12 +4,20 @@ import 'package:barkbuddy/home/pages/devices/bloc/devices_bloc.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
 import 'package:barkbuddy/home/pages/services/services/services_service.dart';
-import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
-import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
-import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/switcher_aware_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/google_tts_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/stub_tts_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/switcher_aware_tts_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
+import 'package:barkbuddy/login/services/users/user_service.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import 'pages/services/bloc/services_bloc.dart';
 
@@ -29,36 +37,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiProvider(
       providers: [
-        BlocProvider<SitterBloc>(
-          create: (context) => SitterBloc(
-            barkbuddyTtsManager: context.read<BarkbuddyTtsManager>(),
-            audioRecorderService: context.read<RecorderService>(),
-            barkbuddyAiManager: context.read<BarkbuddyAiManager>(),
-            devicesManager: context.read<DevicesManager>(),
-          )..add(InitializeSitter()),
-        ),
-        BlocProvider<DevicesBloc>(
-          create: (context) =>
-              DevicesBloc(devicesService: context.read<DevicesService>(),
-                devicesManager: context.read<DevicesManager>()
-              )
-                ..add(const InitializeDevices()),
-        ),
-        BlocProvider<ServicesBloc>(
-          create: (context) => ServicesBloc(servicesService: context.read<ServicesService>())..add(InitializeServices()),
-        ),
-      ],
-      child: NavigationScaffold(
-        selectedIndex: selectedIndex,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(child: destinations[selectedIndex].builder(context)),
+        Provider<ServicesService>(
+            create: (context) =>
+                ServicesService(userService: context.read<UserService>())),
+        Provider<DevicesService>(
+            create: (context) =>
+                DevicesService(userService: context.read<UserService>())),
+        Provider<BarkbuddyAiService>(
+          create: (context) => SwitcherAwareBarkbuddyAiService(
+            geminiBarkbuddyAiService: GeminiBarkbuddyAiService(),
+            stubBarkbuddyAiService: StubBarkbuddyAiService(),
+            servicesService: context.read<ServicesService>(),
           ),
         ),
-        onDestinationSelected: onDestinationSelected,
+        Provider<BarkbuddyAiManager>(
+            create: (context) => BarkbuddyAiManager(
+                  servicesService: context.read<ServicesService>(),
+                  barkbuddyAiService: context.read<BarkbuddyAiService>(),
+                )),
+        Provider<TextToSpeechService>(
+          create: (context) => SwitcherAwareTtsService(
+            googleTtsService: GoogleTtsService(),
+            stubTtsService: StubTtsService(),
+            servicesService: context.read<ServicesService>(),
+          ),
+        ),
+        Provider<DevicesManager>(
+            create: (context) => DevicesManager(
+                  devicesService: context.read<DevicesService>(),
+                  notificationService: context.read<NotificationService>(),
+                )),
+      ],
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<DevicesBloc>(
+            create: (context) => DevicesBloc(
+                devicesService: context.read<DevicesService>(),
+                devicesManager: context.read<DevicesManager>())
+              ..add(const InitializeDevices()),
+          ),
+          BlocProvider<ServicesBloc>(
+            create: (context) =>
+                ServicesBloc(servicesService: context.read<ServicesService>())
+                  ..add(InitializeServices()),
+          ),
+        ],
+        child: NavigationScaffold(
+          selectedIndex: selectedIndex,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child:
+                  Center(child: destinations[selectedIndex].builder(context)),
+            ),
+          ),
+          onDestinationSelected: onDestinationSelected,
+        ),
       ),
     );
   }

@@ -14,6 +14,7 @@ class BarkbuddyUser {
   final String? phoneNumber;
   final String? photoUrl;
   final String uid;
+  final bool? enabled;
 
   BarkbuddyUser({
     this.displayName,
@@ -24,6 +25,7 @@ class BarkbuddyUser {
     this.lastSignInTime,
     this.phoneNumber,
     this.photoUrl,
+    this.enabled,
     required this.uid,
   });
 

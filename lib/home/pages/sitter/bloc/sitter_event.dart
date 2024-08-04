@@ -45,3 +45,13 @@ final class DebugBark extends SitterEvent {
   @override
   List<Object> get props => [];
 }
+
+final class RecorderUserServiceChanged extends SitterEvent {
+  final RecorderUserService? recorderUserService;
+
+  const RecorderUserServiceChanged({this.recorderUserService});
+
+  @override
+  List<Object?> get props => [recorderUserService];
+
+}

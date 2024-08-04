@@ -27,6 +27,15 @@ class RegisterGeminiService extends ServicesEvent {
   List<Object?> get props => [enabled];
 }
 
+class RegisterRecorderService extends ServicesEvent {
+  final bool enabled;
+
+  const RegisterRecorderService({required this.enabled});
+
+  @override
+  List<Object?> get props => [enabled];
+}
+
 class RegisterGoogleTtsService extends ServicesEvent {
   final String projectId;
   final String accessToken;

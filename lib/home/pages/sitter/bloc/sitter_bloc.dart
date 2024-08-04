@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
+import 'package:barkbuddy/home/pages/services/models/user_service.dart';
+import 'package:barkbuddy/home/pages/services/services/services_service.dart';
 import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
@@ -23,6 +25,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   final BarkbuddyAiManager barkbuddyAiManager;
   final DevicesManager devicesManager;
   final BarkbuddyTtsManager barkbuddyTtsManager;
+  final ServicesService servicesService;
 
   late Timer volumeUpdateTimer;
   late Timer detectNoiseTimer;
@@ -33,12 +36,14 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   int volumeUpdateIntervalMillis;
   int detectNoiseIntervalMillis;
   int actionsPlayerIntervalMillis;
+  StreamSubscription<Iterable<UserService>>? servicesSub;
 
   SitterBloc({
     required this.audioRecorderService,
     required this.barkbuddyAiManager,
     required this.devicesManager,
     required this.barkbuddyTtsManager,
+    required this.servicesService,
     this.isRecording = false,
     this.minAmplitude = -45.0,
     this.recordSeconds = 10,
@@ -52,6 +57,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     on<ExecuteAction>(onExecuteAction);
     on<DebugBark>(onDebugBark);
     on<AddActions>(onAddActions);
+    on<RecorderUserServiceChanged>(onRecorderUserServiceChanged);
     audioRecorderService.audioRecordedCallback = audioRecordedCallback;
   }
 
@@ -64,6 +70,15 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
         Timer.periodic(Duration(milliseconds: detectNoiseIntervalMillis), (timer) async => await detectNoise());
     actionsPlayerTimer =
         Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) async => await playAction());
+
+    servicesSub?.cancel();
+    var servicesStream = await servicesService.streamServices();
+    servicesSub = servicesStream.listen((services) {
+      var recorderUserService = services
+          .whereType<RecorderUserService>()
+          .first;
+      add(RecorderUserServiceChanged(recorderUserService: recorderUserService));
+    });
   }
 
   Future<void> updateVolume() async {
@@ -186,5 +201,17 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     detectNoiseTimer.cancel();
     actionsPlayerTimer.cancel();
     await super.close();
+  }
+
+  void onRecorderUserServiceChanged(RecorderUserServiceChanged event, Emitter<AbstractSitterState> emit) {
+    final bool showDebugBarkButton;
+    if(event.recorderUserService != null) {
+      showDebugBarkButton = event.recorderUserService!.enabled;
+    } else {
+      showDebugBarkButton = true;
+    }
+    switch(state) {
+      case SitterState(): emit((state as SitterState).copyWith(showDebugBarkButton: showDebugBarkButton));
+    }
   }
 }

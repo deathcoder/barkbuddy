@@ -17,9 +17,11 @@ class Services {
   final String collection = "services";
   final String geminiId = gemini;
   final String googleTtsId = googleTts;
+  final String recorderId = recorder;
 
   static const gemini = "gemini";
   static const googleTts = "googleTts";
+  static const recorder = "recorder";
 }
 
 

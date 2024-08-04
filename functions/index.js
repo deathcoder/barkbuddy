@@ -21,17 +21,13 @@ async (request) => {
       "called while authenticated.");
   }
 
-  const appCheckToken = request.app.token;
+  const appCheckToken = request.app?.token;
 
   if (!appCheckToken) {
     throw new HttpsError("unauthenticated", "The function must be " +
       "called with a valid AppCheck Token.");
   }
 
-  if (request.app.alreadyConsumed) {
-    throw new HttpsError("unauthenticated", "AppCheck Token already consumed." +
-      " The function must be called with a fresh AppCheck Token.");
-  }
 
   const notificationTitle = request.data.title;
   const notificationBody = request.data.body;

@@ -52,6 +52,15 @@ class ServicesPage extends StatelessWidget {
                   child: const Text('Register Google Text to Speech Service'),
                 ),
               ],
+              if (!state.userServices.containsRecorderService) ...[
+                VerticalSpace.small(),
+                ElevatedButton(
+                  onPressed: () => context
+                      .read<ServicesBloc>()
+                      .add(const RegisterRecorderService(enabled: true)),
+                  child: const Text('Register Audio Recorder Service'),
+                ),
+              ],
               VerticalSpace.small(),
               ListView.builder(
                 shrinkWrap: true,
@@ -65,6 +74,7 @@ class ServicesPage extends StatelessWidget {
                         _buildGeminiServiceTile(context, service),
                       GoogleTextToSpeechUserService() =>
                         _buildGoogleTtsServiceTile(context, service),
+                      RecorderUserService() => _buildRecorderServiceTile(context, service),
                     },
                   );
                 },
@@ -100,6 +110,31 @@ class ServicesPage extends StatelessWidget {
           context
               .read<ServicesBloc>()
               .add(RegisterGeminiService(enabled: state));
+        },
+      ),
+    );
+  }
+
+  Widget _buildRecorderServiceTile(
+      BuildContext context, RecorderUserService service) {
+    return ListTile(
+      leading: Icon(Icons.fiber_smart_record, color: HSLColor.fromColor(Colors.red).withLightness(0.4).toColor(),),
+      title: const Text('Audio Recorder Service'),
+      trailing: Switch(
+        value: service.enabled,
+        thumbIcon: WidgetStateProperty.resolveWith<Icon?>(
+              (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return const Icon(Icons.check);
+            }
+            return const Icon(Icons.close);
+          },
+        ),
+        activeColor: Theme.of(context).colorScheme.primaryContainer,
+        onChanged: (state) {
+          context
+              .read<ServicesBloc>()
+              .add(RegisterRecorderService(enabled: state));
         },
       ),
     );

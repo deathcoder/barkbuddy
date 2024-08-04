@@ -35,3 +35,16 @@ Map<String, dynamic> _$GoogleTextToSpeechUserServiceToJson(
       'accessToken': instance.accessToken,
       'enabled': instance.enabled,
     };
+
+RecorderUserService _$RecorderUserServiceFromJson(Map<String, dynamic> json) =>
+    RecorderUserService(
+      enabled: json['enabled'] as bool,
+      uid: json['uid'] as String? ?? Services.recorder,
+    );
+
+Map<String, dynamic> _$RecorderUserServiceToJson(
+        RecorderUserService instance) =>
+    <String, dynamic>{
+      'uid': instance.uid,
+      'enabled': instance.enabled,
+    };

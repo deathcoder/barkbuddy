@@ -38,6 +38,19 @@ class GoogleTextToSpeechUserService extends UserService {
   Map<String, dynamic> toJson() => _$GoogleTextToSpeechUserServiceToJson(this);
 }
 
+@JsonSerializable()
+class RecorderUserService extends UserService {
+  final String uid;
+  final bool enabled;
+
+  RecorderUserService({required this.enabled, this.uid = Services.recorder});
+
+  factory RecorderUserService.fromJson(Map<String, dynamic> json) =>
+      _$RecorderUserServiceFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RecorderUserServiceToJson(this);
+}
+
 typedef UserServices = Iterable<UserService>;
 
 extension UserServicesUtils on UserServices {
@@ -48,6 +61,11 @@ extension UserServicesUtils on UserServices {
 
   bool get containsGoogleTextToSpeechService => any((service) => switch(service) {
     GoogleTextToSpeechUserService() => true,
+    _ => false,
+  });
+
+  bool get containsRecorderService => any((service) => switch(service) {
+    RecorderUserService() => true,
     _ => false,
   });
 }

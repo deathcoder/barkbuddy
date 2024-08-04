@@ -20,10 +20,8 @@ class DisappearingBottomNavigationBar extends StatelessWidget {
     // Modify from here...
     return BottomBarTransition(
       animation: barAnimation,
-      // backgroundColor: Colors.white,
       child: NavigationBar(
         elevation: 0,
-        // backgroundColor: Colors.white,
         destinations: destinations.map<NavigationDestination>((d) {
           return NavigationDestination(
             icon: Icon(d.icon),

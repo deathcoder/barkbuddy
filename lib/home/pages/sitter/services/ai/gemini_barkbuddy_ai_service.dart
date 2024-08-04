@@ -6,6 +6,7 @@ import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dar
 import 'package:firebase_vertexai/firebase_vertexai.dart';
 import 'package:pcmtowave/pcmtowave.dart';
 
+// todo integrate alexa, for example start dog calming music
 class GeminiBarkbuddyAiService implements BarkbuddyAiService {
   static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 

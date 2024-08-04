@@ -5,7 +5,7 @@ import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
 import 'package:record/record.dart';
 
-
+// todo maybe dont need to restart every time, i could just reset the current in-memory audio stream
 class AudioRecorderService implements RecorderService {
   static final logger = Logger(name: (AudioRecorderService).toString());
 

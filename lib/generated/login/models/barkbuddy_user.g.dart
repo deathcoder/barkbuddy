@@ -20,6 +20,7 @@ BarkbuddyUser _$BarkbuddyUserFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['lastSignInTime'] as String),
       phoneNumber: json['phoneNumber'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      enabled: json['enabled'] as bool? ?? false,
       uid: json['uid'] as String,
     );
 
@@ -34,4 +35,5 @@ Map<String, dynamic> _$BarkbuddyUserToJson(BarkbuddyUser instance) =>
       'phoneNumber': instance.phoneNumber,
       'photoUrl': instance.photoUrl,
       'uid': instance.uid,
+      'enabled': instance.enabled,
     };

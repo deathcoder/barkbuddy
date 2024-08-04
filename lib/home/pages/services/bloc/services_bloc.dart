@@ -19,6 +19,7 @@ class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
     on<InitializeServices>(onInitializeServices);
     on<RegisterGeminiService>(onRegisterGeminiService);
     on<RegisterGoogleTtsService>(onRegisterGoogleTtsService);
+    on<RegisterRecorderService>(onRegisterRecorderService);
     on<DeleteService>(onDeleteService);
     on<ServicesChanged>(onServicesChanged);
   }
@@ -35,6 +36,10 @@ class ServicesBloc extends Bloc<ServicesEvent, AbstractServicesState> {
   Future<void> onRegisterGeminiService(
       RegisterGeminiService event, Emitter<AbstractServicesState> emit) async {
     await servicesService.saveGeminiUserService(enabled: event.enabled);
+  }
+
+  Future<void> onRegisterRecorderService(RegisterRecorderService event, Emitter<AbstractServicesState> emit) async {
+    await servicesService.saveRecorderUserService(enabled: event.enabled);
   }
 
   Future<void> onRegisterGoogleTtsService(RegisterGoogleTtsService event,
