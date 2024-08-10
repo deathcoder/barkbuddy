@@ -18,7 +18,7 @@ class ServicesPage extends StatelessWidget {
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
         if(!state.enabled) {
-          // todo
+          // todo user must request to be enabled
           return const Placeholder();
         }
         var registeredServices = state.userServices.toList();
@@ -26,16 +26,13 @@ class ServicesPage extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 'Manage Your Services',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
               VerticalSpace.small(),
-              const Text(
-                'Ai Service Registration',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
               if (!state.userServices.containsGeminiService) ...[
                 VerticalSpace.small(),
                 ElevatedButton(

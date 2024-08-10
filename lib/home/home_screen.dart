@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child:
-                  Center(child: destinations[selectedIndex].builder(context)),
+                  destinations[selectedIndex].builder(context),
             ),
           ),
           onDestinationSelected: onDestinationSelected,

@@ -64,6 +64,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> with SingleTick
         builder: (context, _) {
           return Scaffold(
             body: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DisappearingNavigationRail(
                   railAnimation: railAnimation,

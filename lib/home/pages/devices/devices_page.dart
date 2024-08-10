@@ -24,6 +24,7 @@ class DevicesPage extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
                 'Manage Your Devices',

@@ -5,6 +5,7 @@ part '../../generated/login/models/barkbuddy_user.g.dart';
 
 @JsonSerializable()
 class BarkbuddyUser {
+  // Firebase user fields
   final String? displayName;
   final String? email;
   final bool emailVerified;
@@ -14,6 +15,8 @@ class BarkbuddyUser {
   final String? phoneNumber;
   final String? photoUrl;
   final String uid;
+
+  // custom fields
   final bool? enabled;
 
   BarkbuddyUser({

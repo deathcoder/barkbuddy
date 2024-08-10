@@ -31,14 +31,24 @@ class BarkbuddyUserService {
         .map((userSnapshot) => BarkbuddyUser.fromJson(userSnapshot.data()!));
   }
 
-  Future<void> updateUser(BarkbuddyUser user) async {
+  Future<void> updateFirebaseUser(BarkbuddyUser user) async {
     logger
         .info("Starting to update user ${user.uid} with email: ${user.email}");
     userId = user.uid;
 
     await db.collection(Collections.users.collection)
         .doc(userId)
-        .set(user.toJson(), SetOptions(merge: true),
+        .set(user.toJson(), SetOptions(mergeFields: [
+      "displayName",
+      "email",
+      "emailVerified",
+      "isAnonymous",
+      "creationTimestamp",
+      "lastSignInTime",
+      "phoneNumber",
+      "photoUrl",
+      "uid"
+    ]),
     );
   }
 }

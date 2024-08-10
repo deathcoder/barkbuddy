@@ -47,7 +47,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Future<void> onAuthChanged(AuthChanged event, Emitter<LoginState> emit) async {
     if(event.authenticationState.authenticationStatus == AuthenticationStatus.authenticated) {
-      await userService.updateUser(event.authenticationState.user!);
+      await userService.updateFirebaseUser(event.authenticationState.user!);
       emit(state.copyWith(status: LoginStatus.success));
     } else {
       emit(state.copyWith(status: LoginStatus.loggedOut));
