@@ -57,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
+    // todo this is not in context anymore
     await context.read<NotificationService>().initialize();
   }
 }

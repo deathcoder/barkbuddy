@@ -68,3 +68,8 @@ class DeleteService extends ServicesEvent {
   @override
   List<Object?> get props => [serviceId];
 }
+
+class RequestAccountActivation extends ServicesEvent {
+  @override
+  List<Object?> get props => [];
+}

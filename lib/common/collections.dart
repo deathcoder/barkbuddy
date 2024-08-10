@@ -3,10 +3,11 @@ class Collections {
 }
 
 class Users {
+  final String collection = "users";
+
   final Devices devices = Devices();
   final Services services = Services();
-
-  final String collection = "users";
+  final Notifications notifications = Notifications();
 }
 
 class Devices {
@@ -22,6 +23,10 @@ class Services {
   static const gemini = "gemini";
   static const googleTts = "googleTts";
   static const recorder = "recorder";
+}
+
+class Notifications {
+  final String collection = "notifications";
 }
 
 

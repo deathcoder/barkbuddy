@@ -5,6 +5,7 @@ import 'package:barkbuddy/common/widgets/vertical_space.dart';
 import 'package:barkbuddy/home/pages/devices/devices_page.dart';
 import 'package:barkbuddy/home/pages/services/bloc/services_bloc.dart';
 import 'package:barkbuddy/home/pages/services/models/user_service.dart';
+import 'package:barkbuddy/home/pages/services/widgets/account_disabled.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +20,7 @@ class ServicesPage extends StatelessWidget {
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
         if(!state.enabled) {
-          // todo user must request to be enabled
-          return const Placeholder();
+          return const AccountDisabled();
         }
         var registeredServices = state.userServices.toList();
 

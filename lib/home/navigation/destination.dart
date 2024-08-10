@@ -1,6 +1,4 @@
 import 'package:barkbuddy/common/widgets/barkbuddy_icons.dart';
-import 'package:barkbuddy/home/pages/devices/devices_page.dart';
-import 'package:barkbuddy/home/pages/home_page.dart';
 import 'package:barkbuddy/home/pages/services/services_page.dart';
 import 'package:barkbuddy/home/pages/sitter/sitter_page.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +11,7 @@ class Destination {
 }
 
 List<Destination> destinations = <Destination>[
-  Destination(Icons.home_filled, 'Home', builder: (_) => const HomePage()),
+  //Destination(Icons.home_filled, 'Home', builder: (_) => const HomePage()),
   Destination(BarkbuddyIcons.dog, 'Sitter', builder: (_) => const SitterPage()),
   Destination(Icons.settings, 'Settings', builder: (_) => const ServicesPage()),
 ];

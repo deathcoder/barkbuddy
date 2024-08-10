@@ -9,6 +9,8 @@ import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dar
 import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/switcher_aware_barkbuddy_ai_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/firebase_notification_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/notification/firebase_persisting_notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/google_tts_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/stub_tts_service.dart';
@@ -39,6 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<NotificationService>(
+          create: (context) => FirebasePersistingNotificationService(
+              barkbuddyUserService: context.read<BarkbuddyUserService>(),
+              delegate: FirebaseNotificationService()),
+        ),
         Provider<ServicesService>(
             create: (context) => ServicesService(
                 userService: context.read<BarkbuddyUserService>())),
@@ -81,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BlocProvider<ServicesBloc>(
             create: (context) => ServicesBloc(
               servicesService: context.read<ServicesService>(),
+              notificationService: context.read<NotificationService>(),
               barkbuddyUserService: context.read<BarkbuddyUserService>(),
             )..add(InitializeServices()),
           ),

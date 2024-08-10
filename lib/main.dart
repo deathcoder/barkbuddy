@@ -2,8 +2,6 @@ import 'package:barkbuddy/app.dart';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/firebase_options.dart';
 import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
-import 'package:barkbuddy/home/pages/sitter/services/notification/firebase_notification_service.dart';
-import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -46,9 +44,6 @@ Future<void> main() async {
   );
 
   runApp(MultiProvider(providers: [
-    Provider<NotificationService>(
-      create: (context) => FirebaseNotificationService(),
-    ),
     Provider<AuthenticationService>(
         create: (context) => AuthenticationService()),
     Provider<BarkbuddyUserService>(create: (context) => BarkbuddyUserService()),
