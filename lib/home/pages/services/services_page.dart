@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:barkbuddy/common/assets.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
+import 'package:barkbuddy/home/pages/devices/devices_page.dart';
 import 'package:barkbuddy/home/pages/services/bloc/services_bloc.dart';
 import 'package:barkbuddy/home/pages/services/models/user_service.dart';
 import 'package:flutter/foundation.dart';
@@ -77,6 +78,8 @@ class ServicesPage extends StatelessWidget {
                   );
                 },
               ),
+              VerticalSpace.medium(),
+              const DevicesPage()
             ],
           ),
         );

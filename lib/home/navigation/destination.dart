@@ -15,6 +15,5 @@ class Destination {
 List<Destination> destinations = <Destination>[
   Destination(Icons.home_filled, 'Home', builder: (_) => const HomePage()),
   Destination(BarkbuddyIcons.dog, 'Sitter', builder: (_) => const SitterPage()),
-  Destination(Icons.devices, 'Devices', builder: (_) => const DevicesPage()),
-  Destination(Icons.settings, 'Services', builder: (_) => const ServicesPage()),
+  Destination(Icons.settings, 'Settings', builder: (_) => const ServicesPage()),
 ];
