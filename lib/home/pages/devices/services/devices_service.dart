@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:barkbuddy/common/collections.dart';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/pages/devices/models/user_device.dart';
-import 'package:barkbuddy/login/services/users/user_service.dart';
+import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -11,11 +11,10 @@ import 'package:flutter/foundation.dart';
 class DevicesService {
   static final logger = Logger(name: (DevicesService).toString());
 
-  // todo should be able to use prod in production builds
   final FirebaseFirestore db =
-      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
+      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: kDebugMode ? 'test' : 'prod');
 
-  final UserService userService;
+  final BarkbuddyUserService userService;
 
   DevicesService({required this.userService});
 

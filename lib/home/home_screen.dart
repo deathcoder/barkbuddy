@@ -14,7 +14,7 @@ import 'package:barkbuddy/home/pages/sitter/services/tts/google_tts_service.dart
 import 'package:barkbuddy/home/pages/sitter/services/tts/stub_tts_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/switcher_aware_tts_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/tts/text_to_speech_service.dart';
-import 'package:barkbuddy/login/services/users/user_service.dart';
+import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:flutter/material.dart' hide Action;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -40,11 +40,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return MultiProvider(
       providers: [
         Provider<ServicesService>(
-            create: (context) =>
-                ServicesService(userService: context.read<UserService>())),
+            create: (context) => ServicesService(
+                userService: context.read<BarkbuddyUserService>())),
         Provider<DevicesService>(
-            create: (context) =>
-                DevicesService(userService: context.read<UserService>())),
+            create: (context) => DevicesService(
+                userService: context.read<BarkbuddyUserService>())),
         Provider<BarkbuddyAiService>(
           create: (context) => SwitcherAwareBarkbuddyAiService(
             geminiBarkbuddyAiService: GeminiBarkbuddyAiService(),
@@ -79,9 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ..add(const InitializeDevices()),
           ),
           BlocProvider<ServicesBloc>(
-            create: (context) =>
-                ServicesBloc(servicesService: context.read<ServicesService>())
-                  ..add(InitializeServices()),
+            create: (context) => ServicesBloc(
+              servicesService: context.read<ServicesService>(),
+              barkbuddyUserService: context.read<BarkbuddyUserService>(),
+            )..add(InitializeServices()),
           ),
         ],
         child: NavigationScaffold(

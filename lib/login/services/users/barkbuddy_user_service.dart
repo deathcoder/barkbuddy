@@ -3,14 +3,14 @@ import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/login/models/barkbuddy_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
-class UserService {
-  static final logger = Logger(name: (UserService).toString());
+class BarkbuddyUserService {
+  static final logger = Logger(name: (BarkbuddyUserService).toString());
   late String userId;
 
-  // todo should be able to use prod in production builds
   FirebaseFirestore db =
-      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
+      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: kDebugMode ? 'test' : 'prod');
 
   Future<BarkbuddyUser?> getUser() async {
     var userSnapshot = await db.collection(Collections.users.collection)
@@ -21,6 +21,14 @@ class UserService {
     }
 
     return null;
+  }
+
+  Stream<BarkbuddyUser> streamUser() {
+    return db.collection(Collections.users.collection)
+        .doc(userId)
+        .snapshots()
+        .where((snapshot) => snapshot.exists)
+        .map((userSnapshot) => BarkbuddyUser.fromJson(userSnapshot.data()!));
   }
 
   Future<void> updateUser(BarkbuddyUser user) async {

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:barkbuddy/login/services/auth/authentication_state.dart';
-import 'package:barkbuddy/login/services/users/user_service.dart';
+import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -13,7 +13,7 @@ enum LoginStatus { initial, inProgress, success, failure, loggedOut }
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthenticationService authenticationService;
-  final UserService userService;
+  final BarkbuddyUserService userService;
 
   StreamSubscription<AuthenticationState>? authSub;
 

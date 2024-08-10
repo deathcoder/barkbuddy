@@ -2,18 +2,18 @@ import 'package:barkbuddy/common/collections.dart';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/pages/services/models/user_service.dart'
     hide UserService;
-import 'package:barkbuddy/login/services/users/user_service.dart';
+import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 
 class ServicesService {
   static final logger = Logger(name: (ServicesService).toString());
 
-  // todo should be able to use prod in production builds
   final FirebaseFirestore db =
-      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: 'test');
+      FirebaseFirestore.instanceFor(app: Firebase.app(), databaseId: kDebugMode ? 'test' : 'prod');
 
-  final UserService userService;
+  final BarkbuddyUserService userService;
 
   ServicesService({required this.userService});
 
@@ -38,6 +38,22 @@ class ServicesService {
                 _ => throw "Unsupported service $uid",
               };
             }));
+  }
+
+  Future<Stream<RecorderUserService>> streamRecorder() async {
+    var user = await userService.getUser();
+    if (user == null) {
+      throw "Users must be logged in to see their services";
+    }
+
+    return db
+        .collection(Collections.users.collection)
+        .doc(user.uid)
+        .collection(Collections.users.services.collection)
+        .doc(Collections.users.services.recorderId)
+        .snapshots()
+        .where((doc) => doc.exists)
+        .map((doc) => RecorderUserService.fromJson(doc.data()!));
   }
 
   Future<GeminiUserService?> getGeminiUserService() async {

@@ -5,7 +5,7 @@ import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/firebase_notification_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
-import 'package:barkbuddy/login/services/users/user_service.dart';
+import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +51,7 @@ Future<void> main() async {
     ),
     Provider<AuthenticationService>(
         create: (context) => AuthenticationService()),
-    Provider<UserService>(create: (context) => UserService()),
+    Provider<BarkbuddyUserService>(create: (context) => BarkbuddyUserService()),
   ], child: const App()));
 }
 

@@ -2,11 +2,7 @@ part of 'sitter_bloc.dart';
 
 const double uninitializedVolume = -1;
 
-sealed class AbstractSitterState extends Equatable {
-  const AbstractSitterState();
-}
-
-final class SitterState extends AbstractSitterState {
+final class SitterState extends Equatable {
   final double volume;
   final List<BarkbuddyAction> actions;
   final BarkbuddyAction? actionToExecute;
@@ -25,7 +21,7 @@ final class SitterState extends AbstractSitterState {
   bool get hasData => volume != uninitializedVolume;
 
   @override
-  List<Object?> get props => [volume, actions, actionToExecute, noCache];
+  List<Object?> get props => [volume, actions, actionToExecute, logDebugTransition, showDebugBarkButton, noCache];
 
   SitterState copyWith({
     double? volume,
@@ -38,7 +34,7 @@ final class SitterState extends AbstractSitterState {
       volume: volume ?? this.volume,
       actions: actions ?? this.actions,
       actionToExecute: actionToExecute ?? this.actionToExecute,
-      logDebugTransition: logDebugTransition ?? this.logDebugTransition,
+      logDebugTransition: logDebugTransition ?? false, // always reset to false unless explicitly set to true
       showDebugBarkButton: showDebugBarkButton ?? this.showDebugBarkButton,
     );
   }

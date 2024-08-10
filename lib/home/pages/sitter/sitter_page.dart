@@ -24,60 +24,49 @@ class SitterPage extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<RecorderService>(
-          create: (context) =>
-              SwitcherAwareRecorderService(
-                audioRecorderService: AudioRecorderService(),
-                stubRecorderService: StubRecorderService(),
-                servicesService: context.read<ServicesService>(),
-              ),
+          create: (context) => SwitcherAwareRecorderService(
+            audioRecorderService: AudioRecorderService(),
+            stubRecorderService: StubRecorderService(),
+            servicesService: context.read<ServicesService>(),
+          )..initialize(),
           dispose: (context, value) async => await value.dispose(),
         ),
         Provider<BarkbuddyTtsManager>(
-            create: (context) =>
-                BarkbuddyTtsManager(
+            create: (context) => BarkbuddyTtsManager(
                   servicesService: context.read<ServicesService>(),
                   textToSpeechService: context.read<TextToSpeechService>(),
                 )),
       ],
       child: BlocProvider<SitterBloc>(
-        create: (context) =>
-        SitterBloc(
+        create: (context) => SitterBloc(
           barkbuddyTtsManager: context.read<BarkbuddyTtsManager>(),
           audioRecorderService: context.read<RecorderService>(),
           barkbuddyAiManager: context.read<BarkbuddyAiManager>(),
           devicesManager: context.read<DevicesManager>(),
           servicesService: context.read<ServicesService>(),
-        )
-          ..add(InitializeSitter()),
-        child: BlocBuilder<SitterBloc, AbstractSitterState>(
-            builder: (context, state) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  switch (state) {
-                    SitterState(volume: var volume) when state.hasData =>
-                        Text(
-                            "VOLUME\n${volume0to(volume, 100)}",
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                fontSize: 41, fontWeight: FontWeight.bold)),
-                    _ => const CircularProgressIndicator()
-                  },
-                  VerticalSpace.medium(),
-                  const CurrentAction(),
-                  VerticalSpace.small(),
-                  switch(state) {
-                    SitterState(showDebugBarkButton: var showDebugBarkButton) =>
-                    showDebugBarkButton
-                        ? MaterialFilledButton(
-                        label: const Text("bark!"),
-                        onPressed: () =>
-                            context.read<SitterBloc>().add(DebugBark()))
-                        : const EmptyWidget()
-                  },
-                ],
-              );
-            }),
+        )..add(InitializeSitter()),
+        child: BlocBuilder<SitterBloc, SitterState>(builder: (context, state) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              state.hasData
+                  ? Text("VOLUME\n${volume0to(state.volume, 100)}",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 41, fontWeight: FontWeight.bold))
+                  : const CircularProgressIndicator(),
+              VerticalSpace.medium(),
+              const CurrentAction(),
+              VerticalSpace.small(),
+              state.showDebugBarkButton
+                  ? MaterialFilledButton(
+                      label: const Text("bark!"),
+                      onPressed: () =>
+                          context.read<SitterBloc>().add(DebugBark()))
+                  : const EmptyWidget()
+            ],
+          );
+        }),
       ),
     );
   }
@@ -95,14 +84,12 @@ class CurrentAction extends StatelessWidget {
     return Column(
       children: [
         const Text("Currently executing"),
-        BlocBuilder<SitterBloc, AbstractSitterState>(builder: (context, state) {
-          switch (state) {
-            case SitterState(actionToExecute: var actionToExecute)
-            when actionToExecute != null:
-              var action = getDescription(actionToExecute);
-              return Text(action);
-            default:
-              return const Text("no action to execute at the moment");
+        BlocBuilder<SitterBloc, SitterState>(builder: (context, state) {
+          if (state.actionToExecute != null) {
+            var action = getDescription(state.actionToExecute!);
+            return Text(action);
+          } else {
+            return const Text("no action to execute at the moment");
           }
         }),
       ],

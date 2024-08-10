@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
@@ -12,6 +13,7 @@ class SwitcherAwareRecorderService implements RecorderService {
   final AudioRecorderService audioRecorderService;
   final StubRecorderService stubRecorderService;
   final ServicesService servicesService;
+  bool stub = true;
 
   SwitcherAwareRecorderService({
     required this.audioRecorderService,
@@ -19,18 +21,12 @@ class SwitcherAwareRecorderService implements RecorderService {
     required this.servicesService,
   });
 
-
   Future<RecorderService> get instance async {
-    try {
-      var recorderUserService = await servicesService.getRecorderUserService();
-
-      if (recorderUserService != null && recorderUserService.enabled) {
-        return audioRecorderService;
-      }
-    } catch (error) {
-      logger.warn("Error getting user services, will fallback to stub ai service, error was: $error");
+    if (stub) {
+      return stubRecorderService;
     }
-    return stubRecorderService;
+
+    return audioRecorderService;
   }
 
   @override
@@ -52,7 +48,14 @@ class SwitcherAwareRecorderService implements RecorderService {
 
   @override
   Future<void> initialize() async {
-    var recorderService = await instance;
+    try {
+      var recorderUserService = await servicesService.getRecorderUserService();
+      stub = !(recorderUserService?.enabled ?? false);
+    } catch (error) {
+      logger.warn("Error getting user services, will fallback to stub recorder service, error was: $error");
+    }
+
+    RecorderService recorderService = await instance;
     await recorderService.initialize();
   }
 

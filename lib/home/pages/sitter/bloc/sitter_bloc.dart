@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_action.dart';
@@ -17,7 +16,7 @@ import 'package:just_audio/just_audio.dart';
 part 'sitter_event.dart';
 part 'sitter_state.dart';
 
-class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
+class SitterBloc extends Bloc<SitterEvent, SitterState> {
   static final logger = Logger(name: (SitterBloc).toString());
   static const double amplitudeThreshold = -30;
 
@@ -36,7 +35,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   int volumeUpdateIntervalMillis;
   int detectNoiseIntervalMillis;
   int actionsPlayerIntervalMillis;
-  StreamSubscription<Iterable<UserService>>? servicesSub;
+  StreamSubscription<RecorderUserService>? recorderSub;
 
   SitterBloc({
     required this.audioRecorderService,
@@ -61,7 +60,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     audioRecorderService.audioRecordedCallback = audioRecordedCallback;
   }
 
-  Future<void> onInitializeSitter(InitializeSitter event, Emitter<AbstractSitterState> emit) async {
+  Future<void> onInitializeSitter(InitializeSitter event, Emitter<SitterState> emit) async {
     await audioRecorderService.initialize();
     // start timer
     volumeUpdateTimer =
@@ -71,14 +70,9 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     actionsPlayerTimer =
         Timer.periodic(Duration(milliseconds: actionsPlayerIntervalMillis), (timer) async => await playAction());
 
-    servicesSub?.cancel();
-    var servicesStream = await servicesService.streamServices();
-    servicesSub = servicesStream.listen((services) {
-      var recorderUserService = services
-          .whereType<RecorderUserService>()
-          .first;
-      add(RecorderUserServiceChanged(recorderUserService: recorderUserService));
-    });
+    await recorderSub?.cancel();
+    var recorderStream = await servicesService.streamRecorder();
+    recorderSub = recorderStream.listen((recorder) => add(RecorderUserServiceChanged(recorderUserService: recorder)));
   }
 
   Future<void> updateVolume() async {
@@ -91,16 +85,8 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     add(UpdateVolume(volume: volume));
   }
 
-  Future<void> onUpdateVolume(UpdateVolume event, Emitter<AbstractSitterState> emit) async {
-    switch (state) {
-      case SitterState(actions: var actions, actionToExecute: var actionToExecute):
-        emit(SitterState(
-          volume: event.volume,
-          actions: actions,
-          actionToExecute: actionToExecute,
-          logDebugTransition: true,
-        ));
-    }
+  Future<void> onUpdateVolume(UpdateVolume event, Emitter<SitterState> emit) async {
+    emit(state.copyWith(volume: event.volume, logDebugTransition: true));
   }
 
   Future<void> detectNoise() async {
@@ -119,7 +105,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     }
   }
 
-  Future<void> onRecordNoise(RecordNoise event, Emitter<AbstractSitterState> emit) async {
+  Future<void> onRecordNoise(RecordNoise event, Emitter<SitterState> emit) async {
     logger.info("Starting ${recordSeconds}s audio recording");
     await Future.delayed(Duration(seconds: recordSeconds), (() async {
       await stopRecording();
@@ -132,24 +118,22 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
   }
 
   Future<void> playAction() async {
-    switch (state) {
-      case SitterState(actionToExecute: var actionToExecute) when actionToExecute != null:
-        logger.debug("Skipping play action, last action is still being executed");
-      case SitterState(actions: var actions) when actions.isNotEmpty:
-        BarkbuddyAction actionToExecute = actions.removeAt(0);
-        logger.info("Playing next action: ${actionToExecute.action}");
-        add(ExecuteAction(action: actionToExecute));
-      default:
-        logger.debug("Skipping play action, there are no actions to execute");
+    if(state.actionToExecute != null) {
+      logger.debug("Skipping play action, last action is still being executed");
+    } else if(state.actions.isNotEmpty) {
+      BarkbuddyAction actionToExecute = state.actions.removeAt(0);
+      logger.info("Playing next action: ${actionToExecute.action}");
+      add(ExecuteAction(action: actionToExecute));
+    } else {
+      logger.debug("Skipping play action, there are no actions to execute");
+
     }
   }
 
-  Future<void> onExecuteAction(ExecuteAction event, Emitter<AbstractSitterState> emit) async {
-    switch (state) {
-      case SitterState(actionToExecute: var actionToExecute, volume: var volume, actions: var actions):
-        logger.info("Executing action: ${actionToExecute?.action ?? "No action"}");
-        emit(SitterState(volume: volume, actions: actions, actionToExecute: event.action));
-    }
+  Future<void> onExecuteAction(ExecuteAction event, Emitter<SitterState> emit) async {
+    logger.info("Executing action: ${state.actionToExecute?.action ?? "No action"}");
+    emit(state.copyWith(actionToExecute: event.action));
+
     if (event.action.action == 'action_5' && event.action.message != null) {
       // todo make gemini generate title too
       await devicesManager.sendNotification(title: "Barking detected!", body: event.action.message!);
@@ -161,10 +145,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     }
     logger.debug("starting 10s action execution sleep");
     await Future.delayed(const Duration(seconds: 10));
-    switch (state) {
-      case SitterState(volume: var volume, actions: var actions):
-        emit(SitterState(volume: volume, actions: actions, actionToExecute: null));
-    }
+    emit(state.copyWith(actionToExecute: null));
   }
 
   Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
@@ -179,20 +160,23 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     isRecording = false;
   }
 
-  void onAddActions(AddActions event, Emitter<AbstractSitterState> emit) {
-    switch (state) {
-      case SitterState(volume: var volume, actions: var actions, actionToExecute: var actionToExecute):
-        emit(SitterState(
-          volume: volume,
-          actionToExecute: actionToExecute,
-          actions: [...actions, ...event.actions],
-        ));
-    }
+  void onAddActions(AddActions event, Emitter<SitterState> emit) {
+    emit(state.copyWith(actions: [...state.actions, ...event.actions]));
   }
 
-  Future<void> onDebugBark(DebugBark event, Emitter<AbstractSitterState> emit) async {
+  Future<void> onDebugBark(DebugBark event, Emitter<SitterState> emit) async {
     await devicesManager.sendNotification(title: "Barking detected!", body: "bark!");
     await audioRecorderService.stopRecording();
+  }
+
+  void onRecorderUserServiceChanged(RecorderUserServiceChanged event, Emitter<SitterState> emit) {
+    final bool showDebugBarkButton;
+    if(event.recorderUserService != null) {
+      showDebugBarkButton = kDebugMode || ! event.recorderUserService!.enabled;
+    } else {
+      showDebugBarkButton = true;
+    }
+    emit(state.copyWith(showDebugBarkButton: showDebugBarkButton));
   }
 
   @override
@@ -200,18 +184,7 @@ class SitterBloc extends Bloc<SitterEvent, AbstractSitterState> {
     volumeUpdateTimer.cancel();
     detectNoiseTimer.cancel();
     actionsPlayerTimer.cancel();
+    await recorderSub?.cancel();
     await super.close();
-  }
-
-  void onRecorderUserServiceChanged(RecorderUserServiceChanged event, Emitter<AbstractSitterState> emit) {
-    final bool showDebugBarkButton;
-    if(event.recorderUserService != null) {
-      showDebugBarkButton = event.recorderUserService!.enabled;
-    } else {
-      showDebugBarkButton = true;
-    }
-    switch(state) {
-      case SitterState(): emit((state as SitterState).copyWith(showDebugBarkButton: showDebugBarkButton));
-    }
   }
 }

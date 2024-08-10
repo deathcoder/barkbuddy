@@ -18,6 +18,15 @@ final class ServicesChanged extends ServicesEvent {
   List<Object> get props => [userServices];
 }
 
+final class UserChanged extends ServicesEvent {
+  final BarkbuddyUser user;
+
+  const UserChanged({required this.user});
+
+  @override
+  List<Object> get props => [user];
+}
+
 class RegisterGeminiService extends ServicesEvent {
   final bool enabled;
 

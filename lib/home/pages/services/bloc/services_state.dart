@@ -1,15 +1,22 @@
 part of 'services_bloc.dart';
 
-sealed class AbstractServicesState extends Equatable {
-  const AbstractServicesState();
-}
-
-final class ServicesState extends AbstractServicesState {
+final class ServicesState extends Equatable {
   final UserServices userServices;
+  final bool enabled;
   final DateTime noCache;
 
 
-  ServicesState({required this.userServices}) : noCache = DateTime.now();
+  ServicesState({required this.userServices, this.enabled = false}) : noCache = DateTime.now();
+
+  ServicesState copyWith({
+    UserServices? userServices,
+    bool? enabled,
+  }) {
+    return ServicesState(
+      userServices: userServices ?? this.userServices,
+      enabled: enabled ?? this.enabled
+    );
+  }
 
   @override
   List<Object> get props => [userServices, noCache];

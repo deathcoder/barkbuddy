@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:barkbuddy/common/log/logger.dart';
 import 'package:barkbuddy/home/models/barkbuddy_ai_response.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_vertexai/firebase_vertexai.dart';
 import 'package:pcmtowave/pcmtowave.dart';
 
@@ -10,7 +12,10 @@ import 'package:pcmtowave/pcmtowave.dart';
 class GeminiBarkbuddyAiService implements BarkbuddyAiService {
   static final logger = Logger(name: (GeminiBarkbuddyAiService).toString());
 
-  final model = FirebaseVertexAI.instance.generativeModel(model: 'gemini-1.5-flash');
+  final model = FirebaseVertexAI.instanceFor(
+    auth: FirebaseAuth.instance,
+    appCheck: FirebaseAppCheck.instance,
+  ).generativeModel(model: 'gemini-1.5-flash');
 
   static const systemPrompt = """
 You are a sophisticated multimodal language model designed to assist in monitoring and interacting with a dog. Your input is a short audio clip. Your task is to detect any barking in the audio, assess the dog's stress level, and generate a suitable action plan from the available options.

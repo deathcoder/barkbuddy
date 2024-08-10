@@ -15,12 +15,13 @@ class ServicesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ServicesBloc, AbstractServicesState>(
+    return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
-        var registeredServices = switch (state) {
-          ServicesState(userServices: var userServices) => userServices,
+        if(!state.enabled) {
+          // todo
+          return const Placeholder();
         }
-            .toList();
+        var registeredServices = state.userServices.toList();
 
         return SingleChildScrollView(
           child: Column(
