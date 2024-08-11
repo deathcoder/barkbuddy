@@ -85,8 +85,8 @@ class CurrentAction extends StatelessWidget {
       children: [
         const Text("Currently executing"),
         BlocBuilder<SitterBloc, SitterState>(builder: (context, state) {
-          if (state.actionToExecute != null) {
-            var action = getDescription(state.actionToExecute!);
+          if (state.actionToExecute.action != BarkbuddyAction.noAction) {
+            var action = getDescription(state.actionToExecute);
             return Text(action);
           } else {
             return const Text("no action to execute at the moment");

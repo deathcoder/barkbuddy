@@ -5,7 +5,7 @@ const double uninitializedVolume = -1;
 final class SitterState extends Equatable {
   final double volume;
   final List<BarkbuddyAction> actions;
-  final BarkbuddyAction? actionToExecute;
+  final BarkbuddyAction actionToExecute;
   final bool logDebugTransition;
   final bool showDebugBarkButton;
   final DateTime noCache;
@@ -13,10 +13,10 @@ final class SitterState extends Equatable {
   SitterState({
     this.volume = uninitializedVolume,
     this.actions = const [],
-    this.actionToExecute,
+    BarkbuddyAction? actionToExecute,
     this.logDebugTransition = false,
     this.showDebugBarkButton = false,
-  }) : noCache = DateTime.now();
+  }) : noCache = DateTime.now(), actionToExecute = actionToExecute ?? BarkbuddyAction.noOp();
 
   bool get hasData => volume != uninitializedVolume;
 

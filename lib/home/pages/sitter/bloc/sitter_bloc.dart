@@ -19,7 +19,7 @@ part 'sitter_state.dart';
 
 class SitterBloc extends Bloc<SitterEvent, SitterState> {
   static final logger = Logger(name: (SitterBloc).toString());
-  static const double amplitudeThreshold = -30;
+  static const double amplitudeThreshold = -5;
 
   final RecorderService audioRecorderService;
   final BarkbuddyAiService barkbuddyAiService;
@@ -119,7 +119,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
   }
 
   Future<void> playAction() async {
-    if(state.actionToExecute != null) {
+    if(state.actionToExecute.action != BarkbuddyAction.noAction) {
       logger.debug("Skipping play action, last action is still being executed");
     } else if(state.actions.isNotEmpty) {
       BarkbuddyAction actionToExecute = state.actions.removeAt(0);
@@ -132,7 +132,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
   }
 
   Future<void> onExecuteAction(ExecuteAction event, Emitter<SitterState> emit) async {
-    logger.info("Executing action: ${state.actionToExecute?.action ?? "No action"}");
+    logger.info("Executing action: ${state.actionToExecute.action}");
     emit(state.copyWith(actionToExecute: event.action));
 
     if (event.action.action == 'action_5' && event.action.message != null) {
@@ -146,7 +146,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
     }
     logger.debug("starting 10s action execution sleep");
     await Future.delayed(const Duration(seconds: 10));
-    emit(state.copyWith(actionToExecute: null));
+    emit(state.copyWith(actionToExecute: BarkbuddyAction.noOp()));
   }
 
   Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
@@ -167,7 +167,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
 
   Future<void> onDebugBark(DebugBark event, Emitter<SitterState> emit) async {
     if(audioRecorderService is StubRecorderService) {
-      (audioRecorderService as StubRecorderService).overrideCurrentAmplitude(-5);
+      (audioRecorderService as StubRecorderService).overrideCurrentAmplitude(amplitudeThreshold -1);
     }
     await devicesManager.sendNotification(title: "Barking detected!", body: "bark!");
     await audioRecorderService.stopRecording();

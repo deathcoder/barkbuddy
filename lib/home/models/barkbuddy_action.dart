@@ -18,4 +18,10 @@ class BarkbuddyAction {
   factory BarkbuddyAction.fromJson(Map<String, dynamic> json) => _$BarkbuddyActionFromJson(json);
 
   Map<String, dynamic> toJson() => _$BarkbuddyActionToJson(this);
+
+  static BarkbuddyAction noOp() {
+    return BarkbuddyAction(action: "no-action");
+  }
+
+  static const String noAction = "no-action";
 }

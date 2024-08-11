@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:barkbuddy/common/assets.dart';
 import 'package:barkbuddy/common/widgets/horizontal_space.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
+import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
 import 'package:barkbuddy/home/pages/services/services/services_service.dart';
@@ -61,6 +62,8 @@ class DemoPage extends StatelessWidget {
                       _buildDogProfileSection(context),
                     ],
                   ),
+                  VerticalSpace.small(),
+                  CurrentActionCard(currentAction: state.actionToExecute,),
                   VerticalSpace.medium(),
                   _buildFeaturesShowcase(context),
                 ],
@@ -223,6 +226,86 @@ class DemoPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CurrentActionCard extends StatelessWidget {
+  final BarkbuddyAction currentAction;
+
+  const CurrentActionCard({super.key, required this.currentAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Current Action',
+                    style: Theme.of(context).textTheme.headlineMedium,//?.copyWith(color: Colors.white),
+                  ),
+                  VerticalSpace.small(),
+                  _buildActionContent(context),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionContent(BuildContext context) {
+    IconData icon;
+    String actionText;
+    Color iconColor = Colors.teal;
+
+    switch (currentAction.action) {
+      case 'action_1':
+        icon = Icons.music_note;
+        actionText = 'Playing pre-recorded audio ${currentAction.id}';
+        break;
+      case 'action_2':
+        icon = Icons.record_voice_over;
+        actionText = 'Playing custom message: "${currentAction.message}"';
+        break;
+      case 'action_3':
+        icon = Icons.food_bank;
+        actionText = 'Activating feeder';
+        break;
+      case 'action_4':
+        icon = Icons.toys;
+        actionText = 'Activating toy ${currentAction.id}';
+        break;
+      case 'action_5':
+        icon = Icons.notifications_active;
+        actionText = 'Sending notification: "${currentAction.message}"';
+        break;
+      case BarkbuddyAction.noAction:
+        icon = Icons.pause;
+        actionText = 'No action is currently executing';
+        iconColor = Colors.grey[400]!;
+      default:
+        icon = Icons.error;
+        actionText = 'Unknown action';
+    }
+
+    return Row(
+      children: [
+        Icon(icon, color: iconColor),
+        HorizontalSpace.small(),
+        Expanded(
+          child: Text(
+            actionText,
+          ),
+        ),
+      ],
     );
   }
 }
