@@ -70,7 +70,7 @@ class LoginBody extends StatelessWidget {
                 .pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false);
         }
       },
-      child:  SingleChildScrollView(
+      child: SingleChildScrollView(
         child: Column(
           children: [
             const HeaderSection(),
@@ -140,22 +140,24 @@ class FeatureSection extends StatelessWidget {
                 .copyWith(fontWeight: FontWeight.w500),
           ),
           VerticalSpace.small(),
-          Text(
-            "Our cutting-edge AI technology listens to your dog's noises in real time, carefully analyzing vocal patterns to detect signs of stress or discomfort. When stress is identified, our system instantly notifies you, allowing you to take timely action.",
+          Text( isWideScreenMode(context) ?
+            "Our cutting-edge AI technology listens to your dog's noises in real time, carefully analyzing vocal patterns to detect signs of stress or discomfort. When stress is identified, our system instantly notifies you, allowing you to take timely action."
+            : "Our AI technology monitors your dog's behavior, detects stress levels, provides real-time care solutions and instantly notifies you.",
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium!
                 .copyWith(fontWeight: FontWeight.w500),
           ),
-          Text(
-            "Along with real-time alerts, we provide tailored care solutions to help keep your dog calm and content, ensuring their well-being is always a priority.",
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium!
-                .copyWith(fontWeight: FontWeight.w500),
-          ),
+          if(isWideScreenMode(context))
+            Text(
+              "Along with real-time alerts, we provide tailored care solutions to help keep your dog calm and content, ensuring their well-being is always a priority.",
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium!
+                  .copyWith(fontWeight: FontWeight.w500),
+            ),
           VerticalSpace.medium(),
           const FeatureIcons(),
         ],
@@ -180,21 +182,21 @@ class FeatureIcons extends StatelessWidget {
           height: 200,
         ),
         FeatureItem(
-          icon: Icons.pets,
+          icon: Icons.show_chart,
           text: 'Real-time stress monitoring',
           subtext:
               "Tracks your dog's stress levels and provides instant insights.",
           height: 200,
         ),
         FeatureItem(
-          icon: Icons.notifications,
+          icon: Icons.notifications_active,
           text: 'Instant owner alerts',
           subtext:
               "Notifies you immediately about your dog's needs and behaviors.",
           height: 200,
         ),
         FeatureItem(
-          icon: Icons.smart_toy,
+          icon: Icons.psychology,
           text: 'AI-powered care actions',
           subtext:
               "Uses intelligent algorithms to deliver personalized care recommendations.",
@@ -240,15 +242,18 @@ class FeatureItem extends StatelessWidget {
                         .labelMedium!
                         .copyWith(fontWeight: FontWeight.w500),
                   ),
-                  VerticalSpace.small(),
-                  Text(
-                    subtext,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .labelSmall!
-                        .copyWith(fontWeight: FontWeight.w500),
-                  ),
+                  if(isWideScreenMode(context))
+                    ...[
+                      VerticalSpace.small(),
+                      Text(
+                        subtext,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall!
+                            .copyWith(fontWeight: FontWeight.w500),
+                      ),
+                    ],
                 ],
               ),
             ),
@@ -267,7 +272,7 @@ class FooterSection extends StatelessWidget {
         Expanded(
           child: Container(
             alignment: Alignment.topCenter,
-            color: const Color.fromRGBO(239, 231, 216, 1), // sand
+            color: const Color(0xFFEFE7D8),
             child: ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 400),
                 child: Image.asset(Assets.footerIllustration)),
@@ -328,4 +333,8 @@ class DiagonalClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+bool isWideScreenMode(BuildContext context) {
+  return MediaQuery.of(context).size.width > 600;
 }

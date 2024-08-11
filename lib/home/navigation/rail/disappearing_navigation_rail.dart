@@ -1,3 +1,4 @@
+import 'package:barkbuddy/common/logo.dart';
 import 'package:barkbuddy/home/navigation/animations/animations.dart';
 import 'package:barkbuddy/home/navigation/destination.dart';
 import 'package:barkbuddy/home/navigation/rail/navigation_rail_transition.dart';
@@ -23,10 +24,12 @@ class DisappearingNavigationRail extends StatelessWidget {
       animation: railAnimation,
       backgroundColor: backgroundColor,
       child: NavigationRail(
+        leading: Logo.small(backgroundColor: null),
         labelType: NavigationRailLabelType.all,
         selectedIndex: selectedIndex,
         backgroundColor: backgroundColor,
         onDestinationSelected: onDestinationSelected,
+        //extended: true,
         destinations: destinations.map((d) {
           return NavigationRailDestination(
             icon: Icon(d.icon),
