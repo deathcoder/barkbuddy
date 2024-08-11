@@ -27,15 +27,20 @@ class _LoginScreenState extends State<LoginScreen>
     with AfterLayoutMixin<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceBright,
-      body: BlocProvider<LoginBloc>(
-        create: (context) => LoginBloc(
-            userService: RepositoryProvider.of<BarkbuddyUserService>(context),
-            authenticationService:
-                RepositoryProvider.of<AuthenticationService>(context))
-          ..add(const InitializeLogin()),
-        child: const LoginBody(),
+    return Banner(
+      message: "DEMO",
+      textDirection: TextDirection.ltr,
+      location: BannerLocation.topEnd,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.surfaceBright,
+        body: BlocProvider<LoginBloc>(
+          create: (context) => LoginBloc(
+              userService: RepositoryProvider.of<BarkbuddyUserService>(context),
+              authenticationService:
+                  RepositoryProvider.of<AuthenticationService>(context))
+            ..add(const InitializeLogin()),
+          child: const LoginBody(),
+        ),
       ),
     );
   }
@@ -131,6 +136,7 @@ class FeatureSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             'Experience the future of dog sitting!',
@@ -138,12 +144,13 @@ class FeatureSection extends StatelessWidget {
                 .textTheme
                 .titleLarge!
                 .copyWith(fontWeight: FontWeight.w500),
+            textAlign: TextAlign.start,
           ),
           VerticalSpace.small(),
           Text( isWideScreenMode(context) ?
             "Our cutting-edge AI technology listens to your dog's noises in real time, carefully analyzing vocal patterns to detect signs of stress or discomfort. When stress is identified, our system instantly notifies you, allowing you to take timely action."
             : "Our AI technology monitors your dog's behavior, detects stress levels, provides real-time care solutions and instantly notifies you.",
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium!
@@ -152,7 +159,7 @@ class FeatureSection extends StatelessWidget {
           if(isWideScreenMode(context))
             Text(
               "Along with real-time alerts, we provide tailored care solutions to help keep your dog calm and content, ensuring their well-being is always a priority.",
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium!
@@ -172,35 +179,31 @@ class FeatureIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // todo fix heights
-    return const Row(
+    return const Wrap(
       children: [
         FeatureItem(
           icon: Icons.mic,
           text: 'Advanced bark detection',
           subtext:
               "Accurately identifies and categorizes your dog's barks for tailored responses.",
-          height: 200,
         ),
         FeatureItem(
           icon: Icons.show_chart,
           text: 'Real-time stress monitoring',
           subtext:
               "Tracks your dog's stress levels and provides instant insights.",
-          height: 200,
         ),
         FeatureItem(
           icon: Icons.notifications_active,
           text: 'Instant owner alerts',
           subtext:
               "Notifies you immediately about your dog's needs and behaviors.",
-          height: 200,
         ),
         FeatureItem(
           icon: Icons.psychology,
           text: 'AI-powered care actions',
           subtext:
               "Uses intelligent algorithms to deliver personalized care recommendations.",
-          height: 200,
         ),
       ],
     );
@@ -211,19 +214,18 @@ class FeatureItem extends StatelessWidget {
   final IconData icon;
   final String text;
   final String subtext;
-  final double height;
 
   const FeatureItem(
       {super.key,
       required this.icon,
       required this.text,
       required this.subtext,
-      required this.height,
       });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 200, maxWidth: 300, maxHeight: 200),
       child: Card(
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
             elevation: 2,

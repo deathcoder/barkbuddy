@@ -87,16 +87,21 @@ class _HomeScreenState extends State<HomeScreen> {
             )..add(InitializeServices()),
           ),
         ],
-        child: NavigationScaffold(
-          selectedIndex: selectedIndex,
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child:
-                  destinations[selectedIndex].builder(context),
+        child: Banner(
+          message: "DEMO",
+          textDirection: TextDirection.ltr,
+          location: BannerLocation.topEnd,
+          child: NavigationScaffold(
+            selectedIndex: selectedIndex,
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child:
+                    destinations[selectedIndex].builder(context),
+              ),
             ),
+            onDestinationSelected: onDestinationSelected,
           ),
-          onDestinationSelected: onDestinationSelected,
         ),
       ),
     );
