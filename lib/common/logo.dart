@@ -11,11 +11,15 @@ class Logo extends StatelessWidget {
     return Image.asset(Assets.barkBuddyLogo,);
   }
 
-  static Widget small() {
-    return Rounded.circle(image: Container(color: Colors.white, height: 100, width: 100, child: const Logo()));
+  static Widget tiny({Color backgroundColor = Colors.white}) {
+    return Rounded.circle(image: Container(color: backgroundColor, height: 24, width: 24, child: const Logo()));
   }
 
-  static Widget medium() {
-    return Rounded.circle(image: Container(color: Colors.white, height: 250, width: 250, child: const Logo()));
+  static Widget small({Color? backgroundColor = Colors.white}) {
+    return Rounded.circle(image: Container(color: backgroundColor, height: 100, width: 100, child: const Logo()));
+  }
+
+  static Widget medium({Color? backgroundColor = Colors.white}) {
+    return Rounded.circle(image: Container(color: backgroundColor, height: 250, width: 250, child: const Logo()));
   }
 }

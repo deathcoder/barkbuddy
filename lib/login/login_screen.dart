@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:after_layout/after_layout.dart';
+import 'package:barkbuddy/common/assets.dart';
 import 'package:barkbuddy/common/logo.dart';
-import 'package:barkbuddy/common/widgets/barkbuddy_icons.dart';
-import 'package:barkbuddy/common/widgets/material_filled_button.dart';
+import 'package:barkbuddy/common/widgets/google_signin_button.dart';
 import 'package:barkbuddy/common/widgets/vertical_space.dart';
 import 'package:barkbuddy/home/home_screen.dart';
-import 'package:barkbuddy/home/pages/sitter/services/notification/notification_service.dart';
 import 'package:barkbuddy/login/bloc/login_bloc.dart';
 import 'package:barkbuddy/login/services/auth/authentication_service.dart';
 import 'package:barkbuddy/login/services/users/barkbuddy_user_service.dart';
@@ -29,28 +28,14 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceBright,
       body: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc(
             userService: RepositoryProvider.of<BarkbuddyUserService>(context),
             authenticationService:
                 RepositoryProvider.of<AuthenticationService>(context))
           ..add(const InitializeLogin()),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SafeArea(
-            child: Center(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  VerticalSpace.medium(),
-                  const LoginHeader(),
-                  VerticalSpace.medium(),
-                  const LoginBody(),
-                ],
-              ),
-            ),
-          ),
-        ),
+        child: const LoginBody(),
       ),
     );
   }
@@ -58,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Future<void> afterFirstLayout(BuildContext context) async {
     // todo this is not in context anymore
-    await context.read<NotificationService>().initialize();
+    //await context.read<NotificationService>().initialize();
   }
 }
 
@@ -85,143 +70,262 @@ class LoginBody extends StatelessWidget {
                 .pushAndRemoveUntil<void>(HomeScreen.route(), (route) => false);
         }
       },
+      child:  SingleChildScrollView(
+        child: Column(
+          children: [
+            const HeaderSection(),
+            DiagonalSection(
+              color: Colors.teal.shade700,
+              height: 50,
+            ),
+            const FeatureSection(),
+            const DiagonalSection(
+              color: Color.fromRGBO(239, 231, 216, 1), // sand
+              isTop: true,
+              height: 50,
+            ),
+            const FooterSection(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HeaderSection extends StatelessWidget {
+  const HeaderSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            color: Colors.teal.shade700,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 250
+                      ),
+                      child: Logo.medium(backgroundColor: null)),
+                  GoogleSigninButton(
+                    onPressed: () => context.read<LoginBloc>().add(const LoginSubmitted()),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class FeatureSection extends StatelessWidget {
+  const FeatureSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Text(
+            'Experience the future of dog sitting!',
+            style: Theme.of(context)
+                .textTheme
+                .titleLarge!
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
+          VerticalSpace.small(),
+          Text(
+            "Our cutting-edge AI technology listens to your dog's noises in real time, carefully analyzing vocal patterns to detect signs of stress or discomfort. When stress is identified, our system instantly notifies you, allowing you to take timely action.",
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
+          Text(
+            "Along with real-time alerts, we provide tailored care solutions to help keep your dog calm and content, ensuring their well-being is always a priority.",
+            textAlign: TextAlign.center,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium!
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
+          VerticalSpace.medium(),
+          const FeatureIcons(),
+        ],
+      ),
+    );
+  }
+}
+
+class FeatureIcons extends StatelessWidget {
+  const FeatureIcons({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // todo fix heights
+    return const Row(
+      children: [
+        FeatureItem(
+          icon: Icons.mic,
+          text: 'Advanced bark detection',
+          subtext:
+              "Accurately identifies and categorizes your dog's barks for tailored responses.",
+          height: 200,
+        ),
+        FeatureItem(
+          icon: Icons.pets,
+          text: 'Real-time stress monitoring',
+          subtext:
+              "Tracks your dog's stress levels and provides instant insights.",
+          height: 200,
+        ),
+        FeatureItem(
+          icon: Icons.notifications,
+          text: 'Instant owner alerts',
+          subtext:
+              "Notifies you immediately about your dog's needs and behaviors.",
+          height: 200,
+        ),
+        FeatureItem(
+          icon: Icons.smart_toy,
+          text: 'AI-powered care actions',
+          subtext:
+              "Uses intelligent algorithms to deliver personalized care recommendations.",
+          height: 200,
+        ),
+      ],
+    );
+  }
+}
+
+class FeatureItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final String subtext;
+  final double height;
+
+  const FeatureItem(
+      {super.key,
+      required this.icon,
+      required this.text,
+      required this.subtext,
+      required this.height,
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 8.0),
-          child: Column(
-            children: [
-              Text(
-                "Experience the Future of Dog Sitting!",
-                style: Theme.of(context).textTheme.headlineMedium,
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 40, color: Colors.teal.shade700),
+                  VerticalSpace.small(),
+                  Text(
+                    text,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium!
+                        .copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  VerticalSpace.small(),
+                  Text(
+                    subtext,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelSmall!
+                        .copyWith(fontWeight: FontWeight.w500),
+                  ),
+                ],
               ),
-              VerticalSpace.small(),
-              Text(
-                "BarkBuddy's advanced AI takes care of your furry friend with unmatched reliability and personalized attention. Start now and let our AI sitter provide the ultimate care!",
-                style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                    color:
-                        Theme.of(context).colorScheme.onSurface.withAlpha(150)),
-                textAlign: TextAlign.center,
-              ),
-              VerticalSpace.medium(),
-              const SecurityBox(),
-              VerticalSpace.medium(),
-              MaterialFilledButton(
-                  onPressed: () =>
-                      context.read<LoginBloc>().add(const LoginSubmitted()),
-                  height: 60,
-                  icon: const Icon(BarkbuddyIcons.google),
-                  label: Text(
-                    "Login with Google",
-                    style: Theme.of(context).textTheme.labelLarge!.apply(
-                        fontWeightDelta: 10,
-                        color: Theme.of(context).colorScheme.onPrimary),
-                  )),
-              VerticalSpace.small(),
-              const TermsAndConditions(),
-            ],
+            ),
+          ),
+    );
+  }
+}
+
+class FooterSection extends StatelessWidget {
+  const FooterSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            alignment: Alignment.topCenter,
+            color: const Color.fromRGBO(239, 231, 216, 1), // sand
+            child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 400),
+                child: Image.asset(Assets.footerIllustration)),
           ),
         ),
+      ],
+    );
+  }
+}
+
+class DiagonalSection extends StatelessWidget {
+  final Color color;
+  final bool isTop;
+  final double height;
+
+  const DiagonalSection({
+    super.key,
+    required this.color,
+    required this.height,
+    this.isTop = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipPath(
+      clipper: DiagonalClipper(isTop: isTop),
+      child: Container(
+        color: color,
+        height: height,
       ),
     );
   }
 }
 
-class TermsAndConditions extends StatelessWidget {
-  const TermsAndConditions({
-    super.key,
-  });
+class DiagonalClipper extends CustomClipper<Path> {
+  final bool isTop;
+
+  DiagonalClipper({this.isTop = false});
 
   @override
-  Widget build(BuildContext context) {
-    return RichText(
-        text: TextSpan(
-            text: "By continuing, you agree to our ",
-            style: Theme.of(context).textTheme.labelLarge,
-            children: [
-          TextSpan(
-            text: "Privacy Policy",
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge!
-                .apply(fontWeightDelta: 4),
-          ),
-          const TextSpan(
-            text: " and ",
-          ),
-          TextSpan(
-            text: "T&Cs",
-            style: Theme.of(context)
-                .textTheme
-                .labelLarge!
-                .apply(fontWeightDelta: 4),
-          ),
-        ]));
-  }
-}
+  Path getClip(Size size) {
+    var path = Path();
+    if (isTop) {
+      path.moveTo(0.0, 0.0);
+      path.lineTo(size.width, size.height * 0.25);
+      path.lineTo(size.width, size.height);
+      path.lineTo(0.0, size.height);
+    } else {
+      path.moveTo(0.0, 0.0);
+      path.lineTo(size.width, 0.0);
+      path.lineTo(size.width, size.height);
+      path.lineTo(0.0, size.height * 0.75);
+    }
 
-class SecurityBox extends StatelessWidget {
-  const SecurityBox({
-    super.key,
-  });
+    path.close();
+    return path;
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      surfaceTintColor: Theme.of(context).colorScheme.onSurface,
-      elevation: 4,
-      child: InkWell(
-        onTap: () => {},
-        // TODO this should open some firebase doc maybe
-        borderRadius: BorderRadius.circular(10.0),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 20),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.safety_check,
-                size: 50,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              Flexible(
-                child: RichText(
-                  text: TextSpan(
-                      text: "Barkbuddy uses ",
-                      style: Theme.of(context).textTheme.labelLarge,
-                      children: [
-                        TextSpan(
-                            text: "Firebase",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelLarge!
-                                .apply(
-                                    fontWeightDelta: 4,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .secondary)),
-                        const TextSpan(
-                          text:
-                              " to ensure security when continuing with Google",
-                        ),
-                      ]),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class LoginHeader extends StatelessWidget {
-  const LoginHeader({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Logo.medium();
-  }
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

@@ -44,11 +44,13 @@ class _AppViewState extends State<AppView> {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData(
           brightness: Brightness.dark,
-          colorSchemeSeed: Colors.orange,
+          colorSchemeSeed: Colors.teal.shade700, // Deep Teal
           useMaterial3: true
       ),
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+          brightness: Brightness.dark,
+          colorSchemeSeed: Colors.teal.shade700, // Deep Teal
+          useMaterial3: true
       ),
       navigatorKey: _navigatorKey,
       onGenerateRoute: (_) => LoginScreen.route(),

@@ -1,8 +1,8 @@
 import 'package:barkbuddy/common/widgets/horizontal_space.dart';
 import 'package:flutter/material.dart';
 
-class MaterialFilledButton extends StatelessWidget {
-  const MaterialFilledButton({
+class MaterialOutlinedButton extends StatelessWidget {
+  const MaterialOutlinedButton({
     super.key,
     this.onPressed,
     this.icon,
@@ -23,7 +23,7 @@ class MaterialFilledButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: FilledButton(
+      child: OutlinedButton(
         style: style,
         onPressed: onPressed,
         child: Row(
