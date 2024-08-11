@@ -30,15 +30,16 @@ class DevicesManager {
       {required String title, required String body}) async {
     var devices = await devicesService.getDevices();
 
-    Fluttertoast.showToast(
-      msg: body,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 10,
-      webPosition: "center",
-      // `left`, `center` or `right` https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation
-      webBgColor: "#504338",
-    );
+
+  // todo possibly remove this Fluttertoast.showToast(
+  // todo possibly remove this   msg: body,
+  // todo possibly remove this   toastLength: Toast.LENGTH_LONG,
+  // todo possibly remove this   gravity: ToastGravity.CENTER,
+  // todo possibly remove this   timeInSecForIosWeb: 10,
+  // todo possibly remove this   webPosition: "center",
+  // todo possibly remove this   // `left`, `center` or `right` https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation
+  // todo possibly remove this   webBgColor: "#504338",
+  // todo possibly remove this );
 
     if(demo) {
       return;

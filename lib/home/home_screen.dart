@@ -35,6 +35,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
+  bool demo = false;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )..add(InitializeServices()),
           ),
         ],
-        child: Banner(
+        child: demo ? Banner(
           message: "DEMO",
           textDirection: TextDirection.ltr,
           location: BannerLocation.topEnd,
@@ -102,6 +103,16 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             onDestinationSelected: onDestinationSelected,
           ),
+        ) : NavigationScaffold(
+          selectedIndex: selectedIndex,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child:
+              destinations[selectedIndex].builder(context),
+            ),
+          ),
+          onDestinationSelected: onDestinationSelected,
         ),
       ),
     );

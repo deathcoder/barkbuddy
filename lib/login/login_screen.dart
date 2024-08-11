@@ -27,20 +27,15 @@ class _LoginScreenState extends State<LoginScreen>
     with AfterLayoutMixin<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return Banner(
-      message: "DEMO",
-      textDirection: TextDirection.ltr,
-      location: BannerLocation.topEnd,
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surfaceBright,
-        body: BlocProvider<LoginBloc>(
-          create: (context) => LoginBloc(
-              userService: RepositoryProvider.of<BarkbuddyUserService>(context),
-              authenticationService:
-                  RepositoryProvider.of<AuthenticationService>(context))
-            ..add(const InitializeLogin()),
-          child: const LoginBody(),
-        ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surfaceBright,
+      body: BlocProvider<LoginBloc>(
+        create: (context) => LoginBloc(
+            userService: RepositoryProvider.of<BarkbuddyUserService>(context),
+            authenticationService:
+                RepositoryProvider.of<AuthenticationService>(context))
+          ..add(const InitializeLogin()),
+        child: const LoginBody(),
       ),
     );
   }

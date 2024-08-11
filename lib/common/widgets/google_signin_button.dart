@@ -13,7 +13,8 @@ class GoogleSigninButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialOutlinedButton(
-        icon: const SvgPicture(AssetBytesLoader(Assets.googleLogo)),
+        // todo icon: const SvgPicture(AssetBytesLoader(Assets.googleLogoVec)),
+        icon: SvgPicture.asset(Assets.googleLogo),
         label: const Text("Continue with Google", style: TextStyle(
           color: Color(0xFFE3E3E3),
           fontFamily: BarkbuddyFonts.robotoMedium

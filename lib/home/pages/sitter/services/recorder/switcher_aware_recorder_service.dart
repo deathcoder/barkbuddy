@@ -13,7 +13,8 @@ class SwitcherAwareRecorderService implements RecorderService {
   final AudioRecorderService audioRecorderService;
   final StubRecorderService stubRecorderService;
   final ServicesService servicesService;
-  bool stub = true;
+  // todo
+  bool stub = false;
 
   SwitcherAwareRecorderService({
     required this.audioRecorderService,

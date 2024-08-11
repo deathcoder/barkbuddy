@@ -88,6 +88,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
    - assets/images/barkbuddy-logo.png
+   - assets/icons/g-logo.svg
    - assets/icons/g-logo.svg.vec
    - assets/images/login-footer-illustration-cropped.png
    - assets/images/gemini_favicon.png
