@@ -4,7 +4,6 @@ import 'package:barkbuddy/home/pages/devices/bloc/devices_bloc.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/devices/services/devices_service.dart';
 import 'package:barkbuddy/home/pages/services/services/services_service.dart';
-import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/gemini_barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/ai/stub_barkbuddy_ai_service.dart';
@@ -59,11 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
             servicesService: context.read<ServicesService>(),
           ),
         ),
-        Provider<BarkbuddyAiManager>(
-            create: (context) => BarkbuddyAiManager(
-                  servicesService: context.read<ServicesService>(),
-                  barkbuddyAiService: context.read<BarkbuddyAiService>(),
-                )),
         Provider<TextToSpeechService>(
           create: (context) => SwitcherAwareTtsService(
             googleTtsService: GoogleTtsService(),

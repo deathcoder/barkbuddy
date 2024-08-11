@@ -5,7 +5,6 @@ import 'package:barkbuddy/home/pages/sitter/services/notification/notification_s
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class FirebaseNotificationService implements NotificationService {
   static final logger = Logger(name: (FirebaseNotificationService).toString());
@@ -52,15 +51,6 @@ class FirebaseNotificationService implements NotificationService {
       {required String title,
       required String body,
       required String fcmToken}) async {
-    Fluttertoast.showToast(
-      msg: body,
-      toastLength: Toast.LENGTH_LONG,
-      gravity: ToastGravity.CENTER,
-      timeInSecForIosWeb: 10,
-      webPosition: "center",
-      // `left`, `center` or `right` https://github.com/apvarun/toastify-js?tab=readme-ov-file#documentation
-      webBgColor: "#504338",
-    );
 
     try {
       final response =

@@ -5,8 +5,8 @@ import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/services/services/services_service.dart';
 import 'package:barkbuddy/home/pages/sitter/bloc/sitter_bloc.dart';
-import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/audio_recorder_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/stub_recorder_service.dart';
@@ -41,7 +41,7 @@ class SitterPage extends StatelessWidget {
         create: (context) => SitterBloc(
           barkbuddyTtsManager: context.read<BarkbuddyTtsManager>(),
           audioRecorderService: context.read<RecorderService>(),
-          barkbuddyAiManager: context.read<BarkbuddyAiManager>(),
+          barkbuddyAiService: context.read<BarkbuddyAiService>(),
           devicesManager: context.read<DevicesManager>(),
           servicesService: context.read<ServicesService>(),
         )..add(InitializeSitter()),

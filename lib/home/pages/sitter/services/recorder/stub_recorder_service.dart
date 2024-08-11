@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 
 class StubRecorderService implements RecorderService {
   static final logger = Logger(name: (StubRecorderService).toString());
-
+  double _currentAmplitude = -40;
 
   Function({required Uint8List audio, required int audioId}) audioRecordedCallback =
       ({required Uint8List audio, required int audioId}) {
@@ -14,7 +14,11 @@ class StubRecorderService implements RecorderService {
       };
 
   @override
-  Future<double> get currentAmplitude async => -40;
+  Future<double> get currentAmplitude async => _currentAmplitude;
+
+   void overrideCurrentAmplitude(double currentAmplitude) {
+     _currentAmplitude = currentAmplitude;
+   }
 
   @override
   Future<void> dispose() async {

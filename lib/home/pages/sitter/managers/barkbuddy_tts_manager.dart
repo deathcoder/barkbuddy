@@ -5,22 +5,24 @@ import 'package:just_audio/just_audio.dart';
 class BarkbuddyTtsManager {
   final ServicesService servicesService;
   final TextToSpeechService textToSpeechService;
+  final bool demo;
 
   BarkbuddyTtsManager({
     required this.servicesService,
     required this.textToSpeechService,
+    this.demo = false,
   });
 
   Future<AudioPlayer> synthesize({required String message}) async {
     var ttsService = await servicesService.getGoogleTtsUserService();
-    if (ttsService == null) {
+    if (ttsService == null && !demo) {
       throw "Please configure your Google TTS Service in the Services tab";
     }
 
     return await textToSpeechService.synthesize(
       message: message,
-      accessToken: ttsService.accessToken,
-      projectId: ttsService.projectId,
+      accessToken: ttsService?.accessToken ?? "demo",
+      projectId: ttsService?.projectId ?? "demo",
     );
   }
 }

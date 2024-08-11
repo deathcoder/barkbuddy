@@ -5,9 +5,10 @@ import 'package:barkbuddy/home/models/barkbuddy_action.dart';
 import 'package:barkbuddy/home/pages/devices/managers/devices_manager.dart';
 import 'package:barkbuddy/home/pages/services/models/user_service.dart';
 import 'package:barkbuddy/home/pages/services/services/services_service.dart';
-import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_ai_manager.dart';
 import 'package:barkbuddy/home/pages/sitter/managers/barkbuddy_tts_manager.dart';
+import 'package:barkbuddy/home/pages/sitter/services/ai/barkbuddy_ai_service.dart';
 import 'package:barkbuddy/home/pages/sitter/services/recorder/recorder_service.dart';
+import 'package:barkbuddy/home/pages/sitter/services/recorder/stub_recorder_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +22,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
   static const double amplitudeThreshold = -30;
 
   final RecorderService audioRecorderService;
-  final BarkbuddyAiManager barkbuddyAiManager;
+  final BarkbuddyAiService barkbuddyAiService;
   final DevicesManager devicesManager;
   final BarkbuddyTtsManager barkbuddyTtsManager;
   final ServicesService servicesService;
@@ -39,7 +40,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
 
   SitterBloc({
     required this.audioRecorderService,
-    required this.barkbuddyAiManager,
+    required this.barkbuddyAiService,
     required this.devicesManager,
     required this.barkbuddyTtsManager,
     required this.servicesService,
@@ -150,7 +151,7 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
 
   Future<void> audioRecordedCallback({required Uint8List audio, required int audioId}) async {
     logger.info("Received audio recorded event with id: $audioId and audio size: ${audio.length}");
-    var barkingResponse = await barkbuddyAiManager.detectBarkingAndInferActionsFrom(audio: audio);
+    var barkingResponse = await barkbuddyAiService.detectBarkingAndInferActionsFrom(audio: audio);
     if (barkingResponse.barking) {
       logger.info("Barking detected");
       add(AddActions(actions: barkingResponse.actions));
@@ -165,8 +166,12 @@ class SitterBloc extends Bloc<SitterEvent, SitterState> {
   }
 
   Future<void> onDebugBark(DebugBark event, Emitter<SitterState> emit) async {
+    if(audioRecorderService is StubRecorderService) {
+      (audioRecorderService as StubRecorderService).overrideCurrentAmplitude(-5);
+    }
     await devicesManager.sendNotification(title: "Barking detected!", body: "bark!");
     await audioRecorderService.stopRecording();
+    Future.delayed(const Duration(seconds: 20)).then((_) => (audioRecorderService as StubRecorderService).overrideCurrentAmplitude(-40));
   }
 
   void onRecorderUserServiceChanged(RecorderUserServiceChanged event, Emitter<SitterState> emit) {
